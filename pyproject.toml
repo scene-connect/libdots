@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "dots_utilities"
-version = "0.6.3a3"
+version = "0.1.0"
 description = "Utility functions for the DOTS simulation framework"
 authors = ["Dolf Andringa <dolfandringa@gmail.com>"]
 readme = "README.md"
@@ -11,7 +11,14 @@ name = "PyPI"
 priority = "supplemental"
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.11"
+httpx = "^0.28.1"
+tenacity = "^9.0.0"
+google-cloud = {version = "^0.34.0", optional = true}
+google-cloud-storage = {version = "^2.19.0", optional = true}
+
+[tool.poetry.extras]
+google_cloud = ["google-cloud","google-cloud-storage"]
 
 [tool.poetry.group.dev.dependencies]
 black = ">=23.7.0"
@@ -23,8 +30,10 @@ pytest-mock = ">=3.11.1"
 ruff = ">=0.0.283"
 pyupgrade = "^3.19.1"
 isort = "^5.13.2"
+respx = "^0.22.0"
 
 [tool.pyright]
+stubPath = "./typings"
 reportImportCycles = false
 typeCheckingMode = "strict"
 venv = ".venv"
@@ -34,7 +43,6 @@ exclude = ["./typings/*", "**/node_modules", "**/__pycache__", "**/.*"]
 
 [tool.pytest.ini_options]
 addopts = [
-    "--dist","loadscope",
     "--import-mode=importlib",
     "--cov",
     "--ignore=package",
@@ -57,9 +65,15 @@ exclude_also = [
 fail_under = 100
 show_missing = true
 
-[tool.ruff]
+[tool.ruff.lint]
 # Ignore max line length - black will handle this and it's okay to go over somtimes.
 ignore = ["E501"]
+
+[tool.black]
+extend_exclude = "^/typings/.*$"
+
+[tool.ruff]
+exclude = ["./typings/*"]
 
 [tool.isort]
 profile = "black"
