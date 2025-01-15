@@ -1,0 +1,40 @@
+version: 2
+registries:
+  zuos-python-repo:
+    type: python-index
+    url: https://europe-north1-python.pkg.dev/zuos-342213/zuos-python-repo/
+    username: _json_key_base64
+    password: ${{secrets.GOOGLE_AUTHENTICATION_KEY_BASE64}}
+    replaces-base: false
+  zuos-python-repo-install:
+    type: python-index
+    url: https://europe-north1-python.pkg.dev/zuos-342213/zuos-python-repo/simple/
+    username: _json_key_base64
+    password: ${{secrets.GOOGLE_AUTHENTICATION_KEY_BASE64}}
+    replaces-base: false
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    reviewers:
+      - "scene-connect/dependabot-reviewers"
+    schedule:
+      day: "monday"
+      interval: "weekly"
+      time: "08:00"
+      timezone: "Europe/London"
+    open-pull-requests-limit: 1
+  - package-ecosystem: "pip"
+    allow:
+      - dependency-type: all
+    directory: "/"
+    reviewers:
+      - "scene-connect/dependabot-reviewers"
+    schedule:
+      interval: "daily"
+      time: "08:00"
+      timezone: "Europe/London"
+    registries:
+      - zuos-python-repo
+      - zuos-python-repo-install
+    open-pull-requests-limit: 1
+    insecure-external-code-execution: allow # apparently pip executes code see https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file#insecure-external-code-execution
