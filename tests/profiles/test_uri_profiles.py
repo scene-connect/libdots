@@ -3,6 +3,8 @@ from io import BytesIO
 from typing import IO
 from unittest.mock import MagicMock
 
+import pandera.polars as pa
+import polars as pd
 import pytest
 import respx
 import tenacity
@@ -123,3 +125,57 @@ def test_open_https_uri_retry_errors(respx_mock: respx.MockRouter):
         profiles.open_http_uri(uri)
     assert mock_route.called
     assert mock_route.call_count == 3
+
+
+def test_get_profile_csv_data(
+    mocker: MockFixture,
+):
+    """Test that get_profile_data gets the file in the uri, and validates the resulting csv correctly."""
+    raw_data = pd.DataFrame({"id": [1, 2], "cola": ["test1", "test2"]})
+    data = BytesIO(raw_data.write_csv().encode("utf-8"))
+    mock_open_uri = mocker.patch.object(profiles, "open_uri", return_value=data)
+    uri = "https://test.com/a/b/c.csv"
+
+    class TestModel(pa.DataFrameModel):
+        id: int
+        cola: str
+
+    params: dict[str, str] = {}
+    assert profiles.get_profile_csv_data(uri, params, TestModel).equals(raw_data)
+    mock_open_uri.assert_called_once_with(uri, params)
+
+
+def test_get_profile_no_csv_data(
+    mocker: MockFixture,
+):
+    """Test that get_profile_data gets the file in the uri, and validates the resulting csv correctly."""
+    mock_open_uri = mocker.patch.object(profiles, "open_uri", return_value=None)
+    uri = "https://test.com/a/b/c.csv"
+
+    class TestModel(pa.DataFrameModel):
+        id: int
+        cola: str
+
+    params: dict[str, str] = {}
+    with pytest.raises(ValueError, match=f"No data file found for uri {uri}"):
+        profiles.get_profile_csv_data(uri, params, TestModel)
+    mock_open_uri.assert_called_once_with(uri, params)
+
+
+def test_get_profile_invalid_csv_data(
+    mocker: MockFixture,
+):
+    """Test that get_profile_data gets the file in the uri, and validates the resulting csv correctly."""
+    raw_data = pd.DataFrame({"cola": ["test1", "test2"]})
+    data = BytesIO(raw_data.write_csv().encode("utf-8"))
+    mock_open_uri = mocker.patch.object(profiles, "open_uri", return_value=data)
+    uri = "https://test.com/a/b/c.csv"
+
+    class TestModel(pa.DataFrameModel):
+        id: int
+        cola: str
+
+    params: dict[str, str] = {}
+    with pytest.raises(pa.errors.SchemaError, match="column 'id' not in dataframe"):
+        profiles.get_profile_csv_data(uri, params, TestModel)
+    mock_open_uri.assert_called_once_with(uri, params)
