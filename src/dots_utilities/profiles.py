@@ -1,7 +1,13 @@
+import typing
 from io import BytesIO
 from logging import getLogger
 from typing import IO
 from urllib.parse import urlparse
+
+import polars as pl
+from pandera.polars import DataFrameModel
+from pandera.typing.polars import DataFrame
+from pandera.typing.polars import LazyFrame
 
 try:
     # make using google storage optional
@@ -60,3 +66,21 @@ def open_uri(uri: str, params: dict[str, str]) -> IO[bytes] | None:
             return open_http_uri(uri)
         case _:
             raise NotImplementedError(f"Scheme {parsed_uri.scheme} is not supported.")
+
+
+T_PANDERA_MODEL = typing.TypeVar("T_PANDERA_MODEL", bound=DataFrameModel)
+
+
+def get_profile_csv_data(
+    uri: str, params: dict[str, str], model: type[T_PANDERA_MODEL]
+) -> DataFrame[T_PANDERA_MODEL]:
+    """
+    Open a csv file from a uri with a profile that matches the pandera `model`.
+    """
+    data_file = open_uri(uri, params)
+    if data_file is None:
+        raise ValueError(f"No data file found for uri {uri}")
+    data = pl.read_csv(data_file).lazy()
+    # unfortunately pandera specifies the return type of validate as DataFrameBase instead of LazyFrame or DataFrame
+    validated_data = typing.cast(LazyFrame[model], model.validate(data))
+    return typing.cast(DataFrame[model], validated_data.collect())
