@@ -1,0 +1,6 @@
+* @scene-connect/zuos-reviewers
+
+# Permit changes to poetry.lock and pyproject.toml ONLY to  not require a codeowner review (e.g. Dependabot)
+poetry.lock
+pyproject.toml
+.github/workflows/ci.yml

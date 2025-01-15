@@ -1,0 +1,162 @@
+name: CI
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check-up-to-date:
+    name: Check up to date with base branch
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: scene-connect/actions/check-pr-up-to-date@v5
+
+  versions:
+    name: Get head and base versions
+    runs-on: ubuntu-22.04
+    # Only compare versions for PRs. Workflow dispatch won't have a target base branch.
+    if: github.event_name == 'pull_request'
+    outputs:
+      version-base: ${{ steps.version-base.outputs.version }}
+      version-head: ${{ steps.version-head.outputs.version }}
+    steps:
+      - uses: actions/setup-python@v5
+      - uses: abatilo/actions-poetry@v3
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.base_ref }}
+      - name: Get base package version
+        id: version-base
+        run: echo "version=`poetry version --short --no-interaction`" >> $GITHUB_OUTPUT
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+      - name: Get head package version
+        id: version-head
+        run: echo "version=`poetry version --short --no-interaction`" >> $GITHUB_OUTPUT
+
+  version-check:
+    name: Version check
+    needs: [versions]
+    runs-on: ubuntu-22.04
+    # Require a newer version for PRs to main or non-dependabot PRs on dev.
+    if: |
+      github.base_ref == 'main'
+      || github.actor != 'dependabot[bot]'
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          cache: 'pip'
+      - run: pip install packaging
+      - name: Head poetry version newer than base
+        run: python -c "from packaging import version;import sys;sys.exit( 0 if version.parse('${{ needs.versions.outputs.version-head }}') > version.parse('${{ needs.versions.outputs.version-base }}') else 1)"
+
+  version-check-main-release:
+    name: Version check - main release version
+    needs: [versions, version-check]
+    runs-on: ubuntu-22.04
+    # Require a full version for PRs to main.
+    if: github.base_ref == 'main'
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          cache: 'pip'
+      - run: pip install packaging
+      - name: PR with pre-release version to main
+        run: python -c "from packaging import version;import sys;sys.exit( 1 if version.parse('${{ needs.versions.outputs.version-head }}').is_prerelease else 0)"
+
+  version-check-git-tag:
+    name: Version check - git tag
+    runs-on: ubuntu-22.04
+    needs: [versions]
+    # Check git tags don't already exist for non-dependabot PRs.
+    if: github.actor != 'dependabot[bot]'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+      - name: Check for existing tag
+        run: |
+          TAG="${{ needs.versions.outputs.version-head }}"
+          if [ $(git tag -l "${TAG}") ]; then
+            echo "Tag already exists: ${TAG}"
+            exit 1
+          else
+            echo "Tag does not exists: ${TAG}"
+          fi
+
+  dependencies:
+    runs-on: ubuntu-22.04
+    needs: [check-up-to-date, version-check, version-check-git-tag]
+    # Run dependencies if version checks succeeded or skipped.
+    # Save a little time on repeating dependencies/lint/test if version checks failed.
+    if: |
+      always()
+      && !contains(needs.*.result, 'failure')
+      && !contains(needs.*.result, 'cancelled')
+    steps:
+      - uses: actions/checkout@v4
+      - name: Authenticate with Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GOOGLE_AUTHENTICATION_CREDENTIALS_JSON }}
+      - uses: scene-connect/actions/python-package-manager/install-dependencies@v5
+        with:
+          package-manager: poetry
+          python-version: "3.11"
+
+  lint:
+    # Dependencies are required for some linters.
+    needs: [dependencies]
+    uses: scene-connect/actions/.github/workflows/lint-python.yml@v5
+    # Run lint when dependencies succeeds.
+    # Because dependencies contains always() we need to check the status manually, thanks github...
+    if: |
+      always()
+      && needs.dependencies.result == 'success'
+    with:
+      django-upgrade: false
+      flake8: false
+      isort: true
+      mypy: false
+      package-manager: poetry
+      pyright: true
+      python-version: "3.11"
+      reorder-python-imports: false
+      ruff: true
+
+  test:
+    needs: [dependencies]
+    runs-on: ubuntu-22.04
+    # Run test when dependencies succeeds.
+    # Because dependencies contains always() we need to check the status manually, thanks github...
+    if: |
+      always()
+      && needs.dependencies.result == 'success'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: scene-connect/actions/python-package-manager/install-dependencies@v5
+        with:
+          package-manager: poetry
+          python-version: "3.11"
+          with_root: true
+      - name: Run pytest
+        uses: liskin/gh-problem-matcher-wrap@v3
+        with:
+          linters: pytest
+          run: poetry run pytest
+
+  poetry-build-publish:
+    needs: [lint, test]
+    uses: scene-connect/actions/.github/workflows/poetry-build-publish.yml@v5
+    if: github.actor != 'dependabot[bot]'
+    with:
+      python-version: "3.11"
+    secrets:
+      GOOGLE_AUTHENTICATION_CREDENTIALS_JSON: ${{ secrets.GOOGLE_AUTHENTICATION_CREDENTIALS_JSON }}

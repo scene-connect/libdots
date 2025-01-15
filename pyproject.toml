@@ -1,0 +1,86 @@
+[tool.poetry]
+name = "zuos-python-package-template"
+version = "0.6.3a3"
+description = "Utility functions for zuos"
+authors = ["Dolf Andringa <dolfandringa@gmail.com>"]
+readme = "README.md"
+packages = [{include = "zuos_python_package_template", from = "src"}]
+
+[[tool.poetry.source]]
+name = "PyPI"
+priority = "supplemental"
+
+[[tool.poetry.source]]
+name = "zuos-python-repo"
+url = "https://europe-north1-python.pkg.dev/zuos-342213/zuos-python-repo/"
+priority = "supplemental"
+
+[[tool.poetry.source]]
+name = "zuos-python-repo-install"
+# Can't install from above url. Can't publish to below URL. Thanks Google...
+url = "https://europe-north1-python.pkg.dev/zuos-342213/zuos-python-repo/simple/"
+priority = "primary"
+
+[tool.poetry.dependencies]
+pydantic = ">=2.0"
+python = "^3.11,<3.12"
+
+[tool.poetry.group.dev.dependencies]
+black = ">=23.7.0"
+pre-commit = ">=3.3.3"
+pyright = ">=1.1.320"
+pytest = ">=7.4.0"
+pytest-asyncio = ">=0.21.1"
+pytest-cov = ">=4.1.0"
+pytest-mock = ">=3.11.1"
+pytest-xdist = ">=3.3.1"
+ruff = ">=0.0.283"
+pyupgrade = "^3.19.1"
+isort = "^5.13.2"
+
+[tool.pyright]
+stubPath = "./typings"
+reportImportCycles = false
+typeCheckingMode = "strict"
+venv = ".venv"
+venvPath = "."
+exclude = ["./typings/*", "**/node_modules", "**/__pycache__", "**/.*"]
+
+
+[tool.pytest.ini_options]
+addopts = [
+    "--numprocesses","auto",
+    "--dist","loadscope",
+    "--import-mode=importlib",
+    "--cov",
+    "--ignore=package",
+    "--ignore=dist"
+]
+
+[tool.coverage.run]
+branch = true
+omit = []
+source = ["./src/zuos_python_package_template"]
+
+[tool.coverage.report]
+exclude_also = [
+    "if .*TYPE_CHECKING:",
+    "@overload",
+    "@typing.overload",
+    "@abstractmethod",
+    "@abc.abstractmethod",
+]
+fail_under = 100
+show_missing = true
+
+[tool.ruff]
+# Ignore max line length - black will handle this and it's okay to go over somtimes.
+ignore = ["E501"]
+
+[tool.isort]
+profile = "black"
+force_single_line = "true"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
