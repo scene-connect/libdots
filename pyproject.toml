@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "dots_utilities"
-version = "0.3.0"
+version = "0.4.0"
 description = "Utility functions for the DOTS simulation framework"
 authors = ["Dolf Andringa <dolfandringa@gmail.com>"]
 readme = "README.md"
@@ -48,6 +48,7 @@ respx = "^0.22.0"
 keyring = "*"
 keyrings-google-artifactregistry-auth = "*"
 grpcio-tools = "^1.69.0"
+types-protobuf = "^5.29.1.20241207"
 
 [tool.pyright]
 stubPath = "./typings"
