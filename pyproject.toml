@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "dots_utilities"
-version = "0.1.0"
+version = "0.2.1"
 description = "Utility functions for the DOTS simulation framework"
 authors = ["Dolf Andringa <dolfandringa@gmail.com>"]
 readme = "README.md"
@@ -10,6 +10,17 @@ packages = [{include = "dots_utilities", from = "src"}]
 name = "PyPI"
 priority = "supplemental"
 
+[[tool.poetry.source]]
+name = "zuos-python-repo"
+url = "https://europe-north1-python.pkg.dev/zuos-342213/zuos-python-repo/"
+priority = "supplemental"
+
+[[tool.poetry.source]]
+name = "zuos-python-repo-install"
+# Can't install from above url. Can't publish to below URL. Thanks Google...
+url = "https://europe-north1-python.pkg.dev/zuos-342213/zuos-python-repo/simple/"
+priority = "primary"
+
 [tool.poetry.dependencies]
 python = "^3.11"
 httpx = "^0.28.1"
@@ -18,6 +29,7 @@ google-cloud = {version = "^0.34.0", optional = true}
 google-cloud-storage = {version = "^2.19.0", optional = true}
 pandera = {extras = ["polars"], version = "^0.22.1"}
 polars = "^1.20.0"
+overrides = "^7.7.0"
 
 [tool.poetry.extras]
 google_cloud = ["google-cloud","google-cloud-storage"]
@@ -33,6 +45,8 @@ ruff = ">=0.0.283"
 pyupgrade = "^3.19.1"
 isort = "^5.13.2"
 respx = "^0.22.0"
+keyring = "*"
+keyrings-google-artifactregistry-auth = "*"
 
 [tool.pyright]
 stubPath = "./typings"
@@ -40,7 +54,13 @@ reportImportCycles = false
 typeCheckingMode = "strict"
 venv = ".venv"
 venvPath = "."
-exclude = ["./typings/*", "**/node_modules", "**/__pycache__", "**/.*"]
+exclude = [
+    "./typings/*",
+    "**/node_modules",
+    "**/__pycache__",
+    "**/.*",
+    "./src/dots_utilities/io/messages/*_pb2.py",
+]
 
 
 [tool.pytest.ini_options]
@@ -53,7 +73,7 @@ addopts = [
 
 [tool.coverage.run]
 branch = true
-omit = []
+omit = ["./src/dots_utilities/io/messages/*_pb2.py"]
 source = ["./src/dots_utilities"]
 
 [tool.coverage.report]
@@ -71,11 +91,16 @@ show_missing = true
 # Ignore max line length - black will handle this and it's okay to go over somtimes.
 ignore = ["E501"]
 
+[tool.ruff]
+extend-exclude = [
+    "typings/*",
+    "src/dots_utilities/io/messages/*_pb2.py"
+]
+
+
+
 [tool.black]
 extend_exclude = "^/typings/.*$"
-
-[tool.ruff]
-exclude = ["./typings/*"]
 
 [tool.isort]
 profile = "black"
