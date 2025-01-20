@@ -2116,6 +2116,19 @@ doc = ["Sphinx (>=7)", "packaging", "sphinx-autodoc-typehints (>=1.2.0)", "sphin
 test = ["coverage[toml] (>=7)", "mypy (>=1.2.0)", "pytest (>=7)"]
 
 [[package]]
+name = "types-protobuf"
+version = "5.29.1.20241207"
+description = "Typing stubs for protobuf"
+optional = false
+python-versions = ">=3.8"
+groups = ["dev"]
+markers = "python_version == \"3.11\" or python_version >= \"3.12\""
+files = [
+    {file = "types_protobuf-5.29.1.20241207-py3-none-any.whl", hash = "sha256:92893c42083e9b718c678badc0af7a9a1307b92afe1599e5cba5f3d35b668b2f"},
+    {file = "types_protobuf-5.29.1.20241207.tar.gz", hash = "sha256:2ebcadb8ab3ef2e3e2f067e0882906d64ba0dc65fc5b0fd7a8b692315b4a0be9"},
+]
+
+[[package]]
 name = "typing-extensions"
 version = "4.12.2"
 description = "Backported and Experimental Type Hints for Python 3.8+"
@@ -2226,4 +2239,4 @@ google-cloud = ["google-cloud", "google-cloud-storage"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.11"
-content-hash = "4a3619584fe0c52e33861cd82c86e1b40e26133d6f4739feff524e600166a490"
+content-hash = "496c2a11fe37a32009aff8ee1551b0df9c18f12e497372b8575483374ee9b946"
