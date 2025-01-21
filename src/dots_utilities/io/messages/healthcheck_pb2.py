@@ -17,14 +17,18 @@ _runtime_version.ValidateProtobufRuntimeVersion(
 _sym_db = _symbol_database.Default()
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(  # type:ignore[reportUnkownVariableType]
     b'\n\x11healthcheck.proto"_\n\x11PingHealthSOToMSO\x12\x1e\n\x07healthy\x18\x01 \x01(\x0e\x32\r.HealthStatus\x12\x0f\n\x07reasons\x18\x02 \x03(\t\x12\x19\n\x11\x61\x63tiveSimulations\x18\x03 \x03(\t"D\n\x11PongHealthMSOToSO\x12\x1e\n\x07healthy\x18\x01 \x01(\x0e\x32\r.HealthStatus\x12\x0f\n\x07reasons\x18\x02 \x03(\t"G\n\x14PingHealthMSOToModel\x12\x1e\n\x07healthy\x18\x01 \x01(\x0e\x32\r.HealthStatus\x12\x0f\n\x07reasons\x18\x02 \x03(\t"z\n\x14PongHealthModelToMSO\x12\x1e\n\x07healthy\x18\x01 \x01(\x0e\x32\r.HealthStatus\x12\x0f\n\x07reasons\x18\x02 \x03(\t\x12\x14\n\x0cnumberOfBids\x18\x03 \x01(\x05\x12\x1b\n\x13numberOfAllocations\x18\x04 \x01(\x05**\n\x0cHealthStatus\x12\x0b\n\x07HEALTHY\x10\x00\x12\r\n\tUNHEALTHY\x10\x01\x62\x06proto3'
 )
 
 _globals = globals()
-_builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
-_builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, "healthcheck_pb2", _globals)
-if not _descriptor._USE_C_DESCRIPTORS:
+_builder.BuildMessageAndEnumDescriptors(  # type:ignore[reportUnkownMemberType]
+    DESCRIPTOR, _globals  # type:ignore[reportUnkownVariableType]
+)
+_builder.BuildTopDescriptorsAndMessages(  # type:ignore[reportUnkownMemberType]
+    DESCRIPTOR, "healthcheck_pb2", _globals  # type:ignore[reportUnkownVariableType]
+)
+if not _descriptor._USE_C_DESCRIPTORS:  # type:ignore[reportPrivateUsage]
     DESCRIPTOR._loaded_options = None
     _globals["_HEALTHSTATUS"]._serialized_start = 385
     _globals["_HEALTHSTATUS"]._serialized_end = 427

@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any as _Any
 from typing import ClassVar as _ClassVar
 from typing import Iterable as _Iterable
 from typing import Mapping as _Mapping
@@ -50,7 +50,7 @@ class ModelConfiguration(_message.Message):
         modelID: _Optional[str] = ...,
         imageUrl: _Optional[str] = ...,
         environmentVariables: _Optional[
-            _Iterable[_Union[EnvironmentVariable, _Mapping[str, Any]]]
+            _Iterable[_Union[EnvironmentVariable, _Mapping[str, _Any]]]
         ] = ...,
     ) -> None: ...
 
@@ -66,7 +66,7 @@ class DeployModels(_message.Message):
         self,
         simulatorId: _Optional[str] = ...,
         modelConfigurations: _Optional[
-            _Iterable[_Union[ModelConfiguration, _Mapping[str, Any]]]
+            _Iterable[_Union[ModelConfiguration, _Mapping[str, _Any]]]
         ] = ...,
         keepLogsHours: _Optional[float] = ...,
     ) -> None: ...
