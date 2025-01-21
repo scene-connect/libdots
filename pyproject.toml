@@ -22,7 +22,7 @@ url = "https://europe-north1-python.pkg.dev/zuos-342213/zuos-python-repo/simple/
 priority = "primary"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = ">=3.11,<3.13"
 httpx = "^0.28.1"
 tenacity = "^9.0.0"
 google-cloud = {version = "^0.34.0", optional = true}
@@ -30,6 +30,8 @@ google-cloud-storage = {version = "^2.19.0", optional = true}
 pandera = {extras = ["polars"], version = "^0.22.1"}
 polars = "^1.20.0"
 overrides = "^7.7.0"
+paho-mqtt = "^2.1.0"
+pyesdl = "^24.11.2"
 
 [tool.poetry.extras]
 google_cloud = ["google-cloud","google-cloud-storage"]
