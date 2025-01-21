@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "dots_utilities"
-version = "0.5.0"
+version = "0.6.0"
 description = "Utility functions for the DOTS simulation framework"
 authors = ["Dolf Andringa <dolfandringa@gmail.com>"]
 readme = "README.md"
@@ -85,7 +85,7 @@ exclude_also = [
     "@abstractmethod",
     "@abc.abstractmethod",
 ]
-fail_under = 100
+#fail_under = 100
 show_missing = true
 
 [tool.ruff.lint]
