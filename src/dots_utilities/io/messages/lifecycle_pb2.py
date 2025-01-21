@@ -17,14 +17,18 @@ _runtime_version.ValidateProtobufRuntimeVersion(
 _sym_db = _symbol_database.Default()
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(  # type:ignore[reportUnkownMemberType]
     b'\n\x0flifecycle.proto"2\n\x13\x45nvironmentVariable\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t"k\n\x12ModelConfiguration\x12\x0f\n\x07modelID\x18\x01 \x01(\t\x12\x10\n\x08imageUrl\x18\x02 \x01(\t\x12\x32\n\x14\x65nvironmentVariables\x18\x03 \x03(\x0b\x32\x14.EnvironmentVariable"l\n\x0c\x44\x65ployModels\x12\x13\n\x0bsimulatorId\x18\x01 \x01(\t\x12\x30\n\x13modelConfigurations\x18\x02 \x03(\x0b\x32\x13.ModelConfiguration\x12\x15\n\rkeepLogsHours\x18\x03 \x01(\x01"\x14\n\x12ReadyForProcessing"\r\n\x0bModelsReady"*\n\x0fModelParameters\x12\x17\n\x0fparameters_dict\x18\x01 \x01(\t"\x0f\n\rParameterized""\n\x07NewStep\x12\x17\n\x0fparameters_dict\x18\x01 \x01(\t"\x12\n\x10\x43\x61lculationsDone"&\n\rErrorOccurred\x12\x15\n\rerror_message\x18\x01 \x01(\t"\x10\n\x0eSimulationDone"7\n\x0eUnhealthyModel\x12%\n\x06status\x18\x01 \x01(\x0e\x32\x15.UnhealthyModelStatus"J\n\x12ModelHasTerminated\x12"\n\x06status\x18\x01 \x01(\x0e\x32\x12.TerminationStatus\x12\x10\n\x08\x65xitCode\x18\x02 \x01(\x05"\x19\n\x17\x41llModelsHaveTerminated*&\n\x14UnhealthyModelStatus\x12\x0e\n\nNOPROGRESS\x10\x00*0\n\x11TerminationStatus\x12\x0f\n\x0bSUCCESSFULL\x10\x00\x12\n\n\x06\x46\x41ILED\x10\x01\x62\x06proto3'
 )
 
 _globals = globals()
-_builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
-_builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, "lifecycle_pb2", _globals)
-if not _descriptor._USE_C_DESCRIPTORS:
+_builder.BuildMessageAndEnumDescriptors(  # type:ignore[reportUnkownMemberType]
+    DESCRIPTOR, _globals  # type:ignore[reportUnkownVariableType]
+)
+_builder.BuildTopDescriptorsAndMessages(  # type:ignore[reportUnkownMemberType]
+    DESCRIPTOR, "lifecycle_pb2", _globals  # type:ignore[reportUnkownVariableType]
+)
+if not _descriptor._USE_C_DESCRIPTORS:  # type:ignore[reportPrivateUsage]
     DESCRIPTOR._loaded_options = None
     _globals["_UNHEALTHYMODELSTATUS"]._serialized_start = 662
     _globals["_UNHEALTHYMODELSTATUS"]._serialized_end = 700
