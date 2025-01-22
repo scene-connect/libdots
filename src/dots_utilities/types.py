@@ -40,3 +40,8 @@ class ModelParametersDescription(TypedDict):
     esdl_ids: list[EsdlId]
     calculation_services: list[CalculationServiceDescription]
     esdl_base64string: str
+
+
+class TimeStepDescription(TypedDict):
+    time_step_nr: int
+    start_time_stamp: float
