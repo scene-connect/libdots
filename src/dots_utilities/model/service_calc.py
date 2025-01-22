@@ -6,6 +6,7 @@ from threading import Lock
 from typing import Protocol
 
 from esdl import EnergySystem
+from esdl import URIProfile
 
 from ..io.io_data import IODataInterface
 from ..io.io_data import NewStep
@@ -80,6 +81,13 @@ class ServiceCalc(ABC):
         """Should return a list of service names that this calculation service should receive data from."""
         return []
 
+    @abstractmethod
+    def process_esdl_object(self, esdl_id: EsdlId, esdl_object: ESDLObject):
+        pass
+
+    def setup_influxdb_output(self):
+        pass
+
     # setup is called upon receiving 'ModelParameters' message
     def setup(
         self,
@@ -102,9 +110,14 @@ class ServiceCalc(ABC):
 
         # get esdl objects and connected services for all esdl object in the model
         for esdl_id in self.esdl_ids:
-            self.esdl_objects[esdl_id] = self.esdl_parser.get_model_esdl_object(
+            esdl_object = self.esdl_parser.get_model_esdl_object(
                 esdl_id, self.esdl_energy_system
             )
+            # run additional code for each esdl object
+            self.process_esdl_object(esdl_id, esdl_object)
+
+            # store the esdl object
+            self.esdl_objects[esdl_id] = esdl_object
             # find connected esdl objects
             self.connected_input_esdl_objects_dict[esdl_id] = (
                 self.esdl_parser.get_connected_input_esdl_objects(
@@ -113,14 +126,7 @@ class ServiceCalc(ABC):
                     self.esdl_energy_system,
                 )
             )
-
-        # Optional: initialize influx db data output (with example output data names)
-        # profile_output_data_names = ['temperature', 'solar_energy']
-        # self.influxdb_client.init_profile_output_data(
-        #     self.simulation_id, self.model_id, type(list(self.esdl_objects.values())[0]).__name__.lower(),
-        #     self.simulation_start_date, self.time_step_seconds, self.nr_of_time_steps, self.esdl_ids,
-        #     profile_output_data_names, self.esdl_objects
-        # )
+        self.setup_influxdb_output()
 
     # write_to_influxdb is called upon 'SimulationDone' message
     def write_to_influxdb(self):
@@ -129,6 +135,13 @@ class ServiceCalc(ABC):
         ):  # only if created and initialized
             self.logger.debug("Write to influx db")
             self.influxdb_client.write_output()
+
+    def get_profile_uri_by_id(self, id: str) -> str:
+        assert self.esdl_energy_system is not None
+        for profile in self.esdl_energy_system.energySystemInformation.profiles.profile:
+            if isinstance(profile, URIProfile) and profile.id == id:
+                return profile.URI
+        raise ValueError("No base URIProfile found with id {str}")
 
     # entry calculation function for redirection
     def calc_function(
