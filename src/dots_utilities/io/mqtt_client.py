@@ -13,18 +13,21 @@
 #      TNO
 
 
+import logging
 import threading
 import traceback
+from typing import Any
 
-import model.io.messages as messages
-from model.calculation.service_calc import ServiceCalc
-from model.io.input_data_inventory import InputDataInventory
-from model.io.io_data import IODataInterface
-from model.io.io_data import ModelParameters
-from model.io.log import LOCAL_LOGGER
-from model.io.log import SIM_LOGGER
-from model.types import EsdlId
 from paho.mqtt.client import Client
+from paho.mqtt.client import MQTTMessage
+
+from ..model.service_calc import ServiceCalc
+from ..types import EsdlId
+from ..types import ServiceName
+from . import messages
+from .input_data_inventory import InputDataInventory
+from .io_data import IODataInterface
+from .io_data import ModelParameters
 
 MODEL_PARAMETERS = "model_parameters"
 NEW_STEP = "new_step"
@@ -42,7 +45,10 @@ class MqttClient:
         service_name: str,
         input_data_inventory: InputDataInventory,
         service_calc: ServiceCalc,
+        sim_logger: logging.Logger,
     ):
+        self.logger = logging.getLogger(__name__)
+        self.sim_logger = sim_logger
         self.host = host
         self.port = port
         self.qos = qos
@@ -50,18 +56,23 @@ class MqttClient:
         self.password = password
         self.service_name = service_name
 
-        self.mqtt_client = None
-        self.subscribed_topics = []
+        self._mqtt_client: Client | None = None
+        self.subscribed_topics: list[str] = []
 
         self.input_data_inventory = input_data_inventory
         self.service_calc = service_calc
 
+    @property
+    def mqtt_client(self) -> Client:
+        if self._mqtt_client is None:
+            self._mqtt_client = Client(clean_session=True)
+        return self._mqtt_client
+
     def wait_for_data(self):
         # initialize mqtt connection
-        self.mqtt_client = Client(clean_session=True)
 
         # The callback for when the client receives a CONNACK response from the server.
-        def on_connect(client, userdata, flags, rc):
+        def on_connect(client: Client, userdata: Any, flags: dict[str, Any], rc: int):
             # print("Connected with result code " + str(rc))
             # Subscribing in on_connect() means that if we lose the connection and
             # reconnect then subscriptions will be renewed.
@@ -69,7 +80,7 @@ class MqttClient:
                 client.subscribe(topic, self.qos)
 
         # The callback for when a PUBLISH message is received from the server.
-        def on_message(client, userdata, msg):
+        def on_message(client: Client, userdata: Any, msg: MQTTMessage):
             t = threading.Thread(target=self._process_message, args=[client, msg])
             t.setDaemon(True)  # kill thread when main thread stops
             t.start()
@@ -83,20 +94,20 @@ class MqttClient:
         self._subscribe_lifecycle_topics()
 
         self._send_ready_for_processing()
-        LOCAL_LOGGER.debug("Service started, waiting for model parameters...")
+        self.logger.debug("Service started, waiting for model parameters...")
         self.mqtt_client.loop_forever()
 
-    def _process_message(self, client: Client, msg):
+    def _process_message(self, client: Client, msg: MQTTMessage):
         try:
             topic = msg.topic
-            LOCAL_LOGGER.debug(f" [received] {topic}: {msg.payload}")
+            self.logger.debug(f" [received] {topic}: {msg.payload}")
 
             data_name: str = self._get_data_name(topic)
 
             if data_name == SIMULATION_DONE:
-                LOCAL_LOGGER.debug("Received simulation done message")
+                self.logger.debug("Received simulation done message")
                 self.service_calc.write_to_influxdb()
-                SIM_LOGGER.info(
+                self.sim_logger.info(
                     f"Simulation Orchestrator terminated service: '{self.service_name}: "
                     f"{self.service_calc.model_id}' - '{self.service_calc.simulation_id}'"
                 )
@@ -115,6 +126,12 @@ class MqttClient:
                     model_parameter_data = self.input_data_inventory.create_new_class(
                         ModelParameters, msg.payload
                     )
+                    if (
+                        not isinstance(model_parameter_data, ModelParameters)
+                        or model_parameter_data.parameters_dict is None
+                    ):
+                        raise ValueError("Invalid Model Parameters Received")
+
                     self.service_calc.setup(model_parameter_data.parameters_dict)
                     self.input_data_inventory.set_expected_esdl_ids_for_input_data(
                         self.service_calc.connected_input_esdl_objects_dict
@@ -144,12 +161,12 @@ class MqttClient:
         except Exception as ex:
             error_message = str(ex) + traceback.format_exc()
 
-            LOCAL_LOGGER.error(error_message)
+            self.logger.error(error_message)
             self._send_error_occurred(error_message)
             client.disconnect()
 
     @staticmethod
-    def _get_data_name(topic):
+    def _get_data_name(topic: str):
         message = topic.split("/")[6]
         if topic.startswith("/lifecycle/dots-so/model/"):
             if message == "ModelParameters":
@@ -168,9 +185,13 @@ class MqttClient:
         self.subscribed_topics.append(topic)
 
     def _subscribe_data_topics(
-        self, client: Client, connected_input_esdl_objects_dict: dict
+        self,
+        client: Client,
+        connected_input_esdl_objects_dict: dict[
+            EsdlId, dict[ServiceName, list[EsdlId]]
+        ],
     ):
-        topics = []
+        topics: list[str] = []
         for (
             main_topic,
             esdl_ids,
@@ -188,26 +209,26 @@ class MqttClient:
         self.mqtt_client.publish(
             topic, payload=messages.ReadyForProcessing().SerializeToString()
         )
-        LOCAL_LOGGER.debug(f" [sent] {topic}")
+        self.logger.debug(f" [sent] {topic}")
 
     def _send_parameterized(self):
         topic = f"/lifecycle/model/dots-so/{self.service_calc.simulation_id}/{self.service_calc.model_id}/Parameterized"
         self.mqtt_client.publish(
             topic, payload=messages.Parameterized().SerializeToString()
         )
-        LOCAL_LOGGER.debug(f" [sent] {topic}")
+        self.logger.debug(f" [sent] {topic}")
 
     def _send_io_data(self, esdl_id: EsdlId, io_data: IODataInterface):
         topic = f"{io_data.get_main_topic()}/{self.service_calc.simulation_id}/{esdl_id}/{io_data.get_name()}"
         self.mqtt_client.publish(topic, io_data.get_values_as_serialized_protobuf())
-        LOCAL_LOGGER.debug(f" [sent] {topic}: {io_data.get_variable_descr()}")
+        self.logger.debug(f" [sent] {topic}: {io_data.get_variable_descr()}")
 
     def _send_calculations_done(self):
         topic = f"/lifecycle/model/dots-so/{self.service_calc.simulation_id}/{self.service_calc.model_id}/CalculationsDone"
         self.mqtt_client.publish(
             topic, payload=messages.CalculationsDone().SerializeToString()
         )
-        LOCAL_LOGGER.debug(f" [sent] {topic}")
+        self.logger.debug(f" [sent] {topic}")
 
     def send_log(self, message: str):
         self.mqtt_client.publish(
@@ -224,7 +245,7 @@ class MqttClient:
 
     def _do_step(self, calc_name: str):
         # do step calculation if all data received for 'calc_name'
-        SIM_LOGGER.debug(
+        self.sim_logger.debug(
             f"start '{self.service_calc.service_name} ({self.service_calc.model_id}) - {calc_name}'"
         )
         output_data_tuple = self.service_calc.calc_function(
@@ -239,6 +260,6 @@ class MqttClient:
 
         self.input_data_inventory.set_calc_done(calc_name)
 
-        SIM_LOGGER.debug(
+        self.sim_logger.debug(
             f"finished '{self.service_calc.service_name} ({self.service_calc.model_id}) - {calc_name}'"
         )

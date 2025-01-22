@@ -13,6 +13,8 @@
 #      TNO
 
 
+from typing import TypedDict
+
 from esdl import DataSource
 from esdl import EnergySystem
 from esdl import GenericProfile
@@ -22,3 +24,19 @@ EsdlId = str
 ServiceName = str
 
 ESDLObject = Item | EnergySystem | GenericProfile | DataSource
+
+
+class CalculationServiceDescription(TypedDict):
+    esdl_type: str
+    calc_service_name: str
+    service_image_url: str
+
+
+class ModelParametersDescription(TypedDict):
+    simulation_name: str
+    start_timestamp: float
+    time_step_seconds: int
+    nr_of_time_steps: int
+    esdl_ids: list[EsdlId]
+    calculation_services: list[CalculationServiceDescription]
+    esdl_base64string: str

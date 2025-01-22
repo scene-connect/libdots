@@ -25,25 +25,22 @@ class XMIOptions(Enum):
 class XMIResource(Resource):
     def __init__(self, uri=..., use_uuid=...) -> None:
         ...
-    
+
     def load(self, options=...): # -> None:
         ...
-    
+
     def xsi_type_url(self): # -> Literal['http://www.omg.org/XMI', 'http://www.w3.org/2001/XMLSchema-instance']:
         ...
-    
+
     @staticmethod
     def extract_namespace(tag): # -> tuple[Any, Any]:
         ...
-    
+
     def register_nsmap(self, prefix, uri): # -> None:
         ...
-    
+
     def register_eobject_epackage(self, eobj): # -> None:
         ...
-    
+
     def save(self, output=..., options=...): # -> None:
         ...
-    
-
-
