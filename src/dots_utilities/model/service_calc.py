@@ -1,6 +1,7 @@
 import logging
 from abc import ABC
 from abc import abstractmethod
+from collections.abc import Mapping
 from datetime import datetime
 from threading import Lock
 from typing import Protocol
@@ -21,7 +22,7 @@ from .influxdb_connector import InfluxDBConnector
 class InputData(Protocol):
     def __call__(
         self, new_step: NewStep, **kwargs: list[IODataInterface]
-    ) -> tuple[dict[EsdlId, IODataInterface], ...]: ...
+    ) -> tuple[Mapping[EsdlId, IODataInterface], ...]: ...
 
 
 class ServiceCalc(ABC):
@@ -71,7 +72,7 @@ class ServiceCalc(ABC):
 
     @property
     @abstractmethod
-    def calculation_functions(self) -> dict[str, InputData]:
+    def calculation_functions(self) -> Mapping[str, InputData]:
         """Should return a dictionary mapping calculation function names to actual class methods."""
         return {}
 
