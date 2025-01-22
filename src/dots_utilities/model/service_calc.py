@@ -15,7 +15,7 @@ from ..types import EsdlId
 from ..types import ESDLObject
 from ..types import ModelParametersDescription
 from ..types import ServiceName
-from . import esdl_parser
+from .esdl_parser import ESDLParser
 from .influxdb_connector import InfluxDBConnector
 
 
@@ -27,7 +27,15 @@ class InputData(Protocol):
 
 class ServiceCalc(ABC):
 
-    # constructor is called when the model service is created
+    # filled during setup
+    esdl_parser: ESDLParser
+    simulation_name: str
+    simulation_start_date: datetime
+    time_step_seconds: int
+    nr_of_time_steps: int
+    esdl_energy_system: EnergySystem
+    esdl_ids: list[EsdlId]
+
     def __init__(
         self,
         simulation_id: str,
@@ -46,13 +54,6 @@ class ServiceCalc(ABC):
         self.logger = logging.getLogger(__name__)
 
         # set in setup()
-        self.esdl_parser: esdl_parser.ESDLParser | None = None
-        self.simulation_name: str | None = None
-        self.simulation_start_date: datetime | None = None
-        self.time_step_seconds: int | None = None
-        self.nr_of_time_steps: int | None = None
-        self.esdl_energy_system: EnergySystem | None = None
-        self.esdl_ids: list[EsdlId] | None = None
         self.esdl_objects: dict[EsdlId, ESDLObject] = {}
 
         # per ESDL object:
@@ -101,7 +102,7 @@ class ServiceCalc(ABC):
         )
         self.time_step_seconds = int(model_parameters["time_step_seconds"])
         self.nr_of_time_steps = int(model_parameters["nr_of_time_steps"])
-        self.esdl_parser = esdl_parser.ESDLParser(self.receives_service_names)
+        self.esdl_parser = ESDLParser(self.receives_service_names)
 
         # get esdl uuids and system
         self.esdl_ids = model_parameters["esdl_ids"]
