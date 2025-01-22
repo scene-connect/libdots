@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "dots_utilities"
-version = "0.6.1"
+version = "0.7.0"
 description = "Utility functions for the DOTS simulation framework"
 authors = ["Dolf Andringa <dolfandringa@gmail.com>"]
 readme = "README.md"
@@ -32,6 +32,7 @@ polars = "^1.20.0"
 overrides = "^7.7.0"
 paho-mqtt = "^2.1.0"
 pyesdl = "^24.11.2"
+influxdb = ">=5.3.1,<5.4.0"
 
 [tool.poetry.extras]
 google_cloud = ["google-cloud","google-cloud-storage"]
