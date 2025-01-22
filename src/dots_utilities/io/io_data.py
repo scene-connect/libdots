@@ -1,10 +1,10 @@
 import json
 from abc import ABC
 from abc import abstractmethod
-from typing import Any
 from typing import override
 
 from dots_utilities.types import ModelParametersDescription
+from dots_utilities.types import TimeStepDescription
 
 from .messages import lifecycle_pb2
 
@@ -41,8 +41,7 @@ class IODataInterface(ABC):
 
 
 class ModelParameters(IODataInterface):
-    def __init__(self, parameters_dict: ModelParametersDescription | None = None):
-        self.parameters_dict = parameters_dict
+    parameters_dict: ModelParametersDescription
 
     @override
     def set_values_from_serialized_protobuf(self, serialized_message: bytes):
@@ -73,8 +72,7 @@ class ModelParameters(IODataInterface):
 
 
 class NewStep(IODataInterface):
-    def __init__(self, parameters_dict: dict[str, Any] | None = None):
-        self.parameters_dict = parameters_dict
+    parameters_dict: TimeStepDescription
 
     @override
     def set_values_from_serialized_protobuf(self, serialized_message: bytes):
