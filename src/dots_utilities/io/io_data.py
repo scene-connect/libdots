@@ -4,6 +4,8 @@ from abc import abstractmethod
 from typing import Any
 from typing import override
 
+from dots_utilities.types import ModelParametersDescription
+
 from .messages import lifecycle_pb2
 
 
@@ -39,7 +41,7 @@ class IODataInterface(ABC):
 
 
 class ModelParameters(IODataInterface):
-    def __init__(self, parameters_dict: dict[str, Any] | None = None):
+    def __init__(self, parameters_dict: ModelParametersDescription | None = None):
         self.parameters_dict = parameters_dict
 
     @override

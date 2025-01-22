@@ -8,15 +8,12 @@ logger = ...
 class XMLResource(XMIResource):
     def __init__(self, uri=..., use_uuid=...) -> None:
         ...
-    
+
     def get_parse_information(self): # -> list[Any]:
         ...
-    
+
     def load(self, options=...): # -> None:
         ...
-    
+
     def save(self, output=..., options=...):
         ...
-    
-
-
