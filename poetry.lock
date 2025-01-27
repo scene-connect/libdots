@@ -1659,7 +1659,6 @@ files = [
 numpy = ">=1.19.0"
 packaging = ">=20.0"
 pandas = ">=1.2.0"
-polars = {version = ">=0.20.0", optional = true, markers = "extra == \"polars\""}
 pydantic = "*"
 typeguard = "*"
 typing_inspect = ">=0.6.0"
@@ -2595,4 +2594,4 @@ google-cloud = ["google-cloud", "google-cloud-storage"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<3.13"
-content-hash = "4b9ee69724b026883a243f0b4624d62dab474b35cd0f2985b8f0832ddbdc3e94"
+content-hash = "011c1547a3b5eaad2fcfe0e764da8133a9773195cad7f9d85936bea9001e1330"
