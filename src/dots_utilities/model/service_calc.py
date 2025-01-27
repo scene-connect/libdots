@@ -1,10 +1,17 @@
 import logging
+import typing
 from abc import ABC
 from abc import abstractmethod
 from collections.abc import Mapping
+from collections.abc import Sequence
 from datetime import datetime
 from threading import Lock
+from typing import Any
+from typing import Generic
+from typing import Literal
 from typing import Protocol
+from typing import TypeAlias
+from typing import TypeVar
 
 from esdl import EnergySystem
 from esdl import URIProfile
@@ -18,14 +25,44 @@ from ..types import ServiceName
 from .esdl_parser import ESDLParser
 from .influxdb_connector import InfluxDBConnector
 
+InputDataType: TypeAlias = Mapping[str, Sequence[IODataInterface]]
+OutputDataType: TypeAlias = tuple[Mapping[EsdlId, IODataInterface], ...]
 
-class InputData(Protocol):
+InputDataInterfaceT = TypeVar(
+    "InputDataInterfaceT",
+    # bound=InputDataType,
+    contravariant=True,
+)
+OutputDataInterfaceT = TypeVar(
+    "OutputDataInterfaceT",
+    bound=OutputDataType,
+    covariant=True,
+)
+
+"""
+With python 3.14 https://peps.python.org/pep-0728/
+
+class AllInputDataInterface(TypedDict, extra_items=Sequence[IODataInterface]):
+    new_step: NewStep
+
+"""
+AllInputDataInterfaceT = Mapping[
+    Literal["new_step"] | str, NewStep | Sequence[IODataInterface]
+]
+
+
+class CalculationFunction(Protocol[InputDataInterfaceT, OutputDataInterfaceT]):
     def __call__(
-        self, new_step: NewStep, **kwargs: list[IODataInterface]
-    ) -> tuple[Mapping[EsdlId, IODataInterface], ...]: ...
+        self, new_step: NewStep, input_data: InputDataInterfaceT
+    ) -> OutputDataInterfaceT: ...
 
 
-class ServiceCalc(ABC):
+CalculationFunctionT = TypeVar(
+    "CalculationFunctionT", bound=CalculationFunction[Any, Any]
+)
+
+
+class ServiceCalc(ABC, Generic[CalculationFunctionT]):
 
     # filled during setup
     esdl_parser: ESDLParser
@@ -73,9 +110,11 @@ class ServiceCalc(ABC):
 
     @property
     @abstractmethod
-    def calculation_functions(self) -> Mapping[str, InputData]:
+    def calculation_functions(
+        self,
+    ) -> Mapping[str, CalculationFunctionT]:
         """Should return a dictionary mapping calculation function names to actual class methods."""
-        return {}
+        pass
 
     @property
     @abstractmethod
@@ -149,7 +188,7 @@ class ServiceCalc(ABC):
     def calc_function(
         self,
         calc_name: str,
-        input_data_dict: dict[str, NewStep | list[IODataInterface]],
+        input_data_dict: AllInputDataInterfaceT,
     ):
         try:
             # don't allow concurrent calculations on a service
@@ -159,11 +198,11 @@ class ServiceCalc(ABC):
             ):
                 raise ValueError("new_step is missing or wrong type")
             new_step: NewStep = input_data_dict["new_step"]
-            rest_data = {
-                k: v for k, v in input_data_dict.items() if not isinstance(v, NewStep)
-            }
+            input_data_dict = dict(input_data_dict)
+            del input_data_dict["new_step"]
             output_data_tuple = self.calculation_functions[calc_name](
-                new_step, **rest_data
+                new_step,
+                typing.cast(Mapping[str, Sequence[IODataInterface]], input_data_dict),
             )
             self.lock.release()
             return output_data_tuple

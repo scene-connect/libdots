@@ -44,7 +44,7 @@ class MqttClient:
         password: str,
         service_name: str,
         input_data_inventory: InputDataInventory,
-        service_calc: ServiceCalc,
+        service_calc: ServiceCalc[Any],
         sim_logger: logging.Logger,
     ):
         self.logger = logging.getLogger(__name__)
