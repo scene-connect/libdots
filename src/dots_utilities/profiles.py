@@ -6,8 +6,7 @@ from urllib.parse import urlparse
 
 import polars as pl
 from pandera.polars import DataFrameModel
-from pandera.typing.polars import DataFrame
-from pandera.typing.polars import LazyFrame
+from pandera.typing import polars as pa
 
 try:
     # make using google storage optional
@@ -72,8 +71,11 @@ T_PANDERA_MODEL = typing.TypeVar("T_PANDERA_MODEL", bound=DataFrameModel)
 
 
 def get_profile_csv_data(
-    uri: str, params: dict[str, str], model: type[T_PANDERA_MODEL]
-) -> DataFrame[T_PANDERA_MODEL]:
+    uri: str,
+    params: dict[str, str],
+    model: type[T_PANDERA_MODEL],
+    sort_by: str | list[str] | None = None,
+) -> pa.DataFrame[T_PANDERA_MODEL]:
     """
     Open a csv file from a uri with a profile that matches the pandera `model`.
     """
@@ -81,6 +83,7 @@ def get_profile_csv_data(
     if data_file is None:
         raise ValueError(f"No data file found for uri {uri}")
     data = pl.read_csv(data_file).lazy()
-    # unfortunately pandera specifies the return type of validate as DataFrameBase instead of LazyFrame or DataFrame
-    validated_data = typing.cast(LazyFrame[model], model.validate(data))
-    return typing.cast(DataFrame[model], validated_data.collect())
+    if sort_by is not None:
+        data = data.sort(by=sort_by)
+    # instantiating also validates in pandera
+    return pa.DataFrame[model](data.collect())
