@@ -99,6 +99,10 @@ class ServiceCalc(ABC, Generic[CalculationFunctionT]):
             EsdlId, dict[ServiceName, list[EsdlId]]
         ] = {}
 
+        self.connected_output_esdl_objects_dict: dict[
+            EsdlId, dict[ServiceName, list[EsdlId]]
+        ] = {}
+
         # for writing to influx db
         self.influxdb_client: InfluxDBConnector = InfluxDBConnector(
             influxdb_host,
@@ -162,6 +166,14 @@ class ServiceCalc(ABC, Generic[CalculationFunctionT]):
             # find connected esdl objects
             self.connected_input_esdl_objects_dict[esdl_id] = (
                 self.esdl_parser.get_connected_input_esdl_objects(
+                    esdl_id,
+                    model_parameters["calculation_services"],
+                    self.esdl_energy_system,
+                )
+            )
+
+            self.connected_output_esdl_objects_dict[esdl_id] = (
+                self.esdl_parser.get_connected_output_esdl_objects(
                     esdl_id,
                     model_parameters["calculation_services"],
                     self.esdl_energy_system,
