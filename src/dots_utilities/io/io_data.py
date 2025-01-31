@@ -21,20 +21,20 @@ class IODataInterface(ABC):
         """Get dictionary with all variables"""
         pass
 
-    @abstractmethod
     @classmethod
+    @abstractmethod
     def get_name(cls) -> str:
         """Get data name"""
         pass
 
-    @abstractmethod
     @classmethod
+    @abstractmethod
     def get_main_topic(cls) -> str:
         """Get MQTT topic"""
         pass
 
-    @abstractmethod
     @classmethod
+    @abstractmethod
     def get_variable_descr(cls) -> str:
         """ "Get variables description"""
         pass
