@@ -72,6 +72,7 @@ class ServiceCalc(ABC, Generic[CalculationFunctionT]):
     nr_of_time_steps: int
     esdl_energy_system: EnergySystem
     esdl_ids: list[EsdlId]
+    service_name: ServiceName
 
     def __init__(
         self,
@@ -82,12 +83,10 @@ class ServiceCalc(ABC, Generic[CalculationFunctionT]):
         influxdb_user: str,
         influxdb_password: str,
         influxdb_name: str,
-        service_name: ServiceName,
     ):
         self.simulation_id = simulation_id
         self.model_id = model_id
         self.lock = Lock()
-        self.service_name = service_name
         self.logger = logging.getLogger(__name__)
 
         # set in setup()
