@@ -121,9 +121,11 @@ class ServiceCalc(ABC, Generic[CalculationFunctionT]):
 
     @property
     @abstractmethod
-    def receives_service_data(self) -> dict[ServiceName, Sequence[IODataInterface]]:
+    def receives_service_data(
+        self,
+    ) -> dict[ServiceName, Sequence[type[IODataInterface]]]:
         """
-        Should a dict of service names as keys and values as a list of the corresponding messages
+        Should a dict of service names as keys and values as a list of the corresponding message types
         that this calculation service should receive as input.
         """
         return {}
