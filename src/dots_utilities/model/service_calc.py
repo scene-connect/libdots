@@ -12,6 +12,9 @@ from typing import Literal
 from typing import Protocol
 from typing import TypeAlias
 from typing import TypeVar
+from typing import get_args
+from typing import get_origin
+from typing import get_type_hints
 
 from esdl import EnergySystem
 from esdl import URIProfile
@@ -128,6 +131,29 @@ class ServiceCalc(ABC, Generic[CalculationFunctionT]):
         Should a list of service names to listen for input data messages.
         """
         return []
+
+    @property
+    def calculation_function_input_types(
+        self,
+    ) -> dict[str, list[type[IODataInterface]]]:
+        """
+        Returns a dictionary of calculation function names and a lost of IODataInterface classes in its input_data.
+        It uses typing introspection for this, and its used to tell the data inventory what data to wait for per function.
+        """
+        args: dict[str, list[type[IODataInterface]]] = {}
+        for function_name, function in self.calculation_functions.items():
+            # breakpoint()
+            args[function_name] = []
+            function_argument_types = get_type_hints(function)
+            input_data_types = get_type_hints(function_argument_types["input_data"])
+            for input_data_type in input_data_types.values():
+                if not get_origin(input_data_type) == Sequence:
+                    continue
+                # get the type(s) of this sequence
+                for arg in get_args(input_data_type):
+                    if issubclass(arg, IODataInterface):
+                        args[function_name].append(arg)
+        return args
 
     @abstractmethod
     def process_esdl_object(self, esdl_id: EsdlId, esdl_object: ESDLObject):
