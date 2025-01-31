@@ -121,9 +121,12 @@ class ServiceCalc(ABC, Generic[CalculationFunctionT]):
 
     @property
     @abstractmethod
-    def receives_service_names(self) -> list[str]:
-        """Should return a list of service names that this calculation service should receive data from."""
-        return []
+    def receives_service_data(self) -> dict[ServiceName, Sequence[IODataInterface]]:
+        """
+        Should a dict of service names as keys and values as a list of the corresponding messages
+        that this calculation service should receive as input.
+        """
+        return {}
 
     @abstractmethod
     def process_esdl_object(self, esdl_id: EsdlId, esdl_object: ESDLObject):
@@ -144,7 +147,7 @@ class ServiceCalc(ABC, Generic[CalculationFunctionT]):
         )
         self.time_step_seconds = int(model_parameters["time_step_seconds"])
         self.nr_of_time_steps = int(model_parameters["nr_of_time_steps"])
-        self.esdl_parser = ESDLParser(self.receives_service_names)
+        self.esdl_parser = ESDLParser(list(self.receives_service_data.keys()))
 
         # get esdl uuids and system
         self.esdl_ids = model_parameters["esdl_ids"]

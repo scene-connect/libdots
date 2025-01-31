@@ -22,10 +22,11 @@ from esdl.esdl_handler import EnergySystemHandler
 from ..types import CalculationServiceDescription
 from ..types import EsdlId
 from ..types import ESDLObject
+from ..types import ServiceName
 
 
 class ESDLParser:
-    def __init__(self, receives_service_names_list: list[str]):
+    def __init__(self, receives_service_names_list: list[ServiceName]):
         self.receives_service_names_list = receives_service_names_list
         self.logger = logging.getLogger(__name__)
 
