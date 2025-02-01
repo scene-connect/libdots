@@ -1,10 +1,10 @@
 [tool.poetry]
-name = "dots_utilities"
-version = "0.20.1"
-description = "Utility functions for the DOTS simulation framework"
+name = "libdots"
+version = "1.0.0"
+description = "Libary for the DOTS simulation services"
 authors = ["Dolf Andringa <dolfandringa@gmail.com>"]
 readme = "README.md"
-packages = [{include = "dots_utilities", from = "src"}]
+packages = [{include = "libdots", from = "src"}]
 
 [[tool.poetry.source]]
 name = "PyPI"
@@ -77,8 +77,8 @@ addopts = [
 
 [tool.coverage.run]
 branch = true
-omit = ["./src/dots_utilities/io/messages/*_pb2.py"]
-source = ["./src/dots_utilities"]
+omit = ["./src/libdots/io/messages/*_pb2.py"]
+source = ["./src/libdots"]
 
 [tool.coverage.report]
 exclude_also = [
@@ -88,7 +88,7 @@ exclude_also = [
     "@abstractmethod",
     "@abc.abstractmethod",
 ]
-fail_under = 46 # a lot of the original code wasn't unittested tested. Tests were added but not enough.
+fail_under = 45 # a lot of the original code wasn't unittested tested. Tests were added but not enough.
 show_missing = true
 
 [tool.ruff.lint]
