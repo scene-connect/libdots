@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "dots_utilities"
-version = "0.20.0"
+version = "0.20.1"
 description = "Utility functions for the DOTS simulation framework"
 authors = ["Dolf Andringa <dolfandringa@gmail.com>"]
 readme = "README.md"
