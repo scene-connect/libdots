@@ -10,7 +10,7 @@ from dots_utilities.model.service_calc import CalculationFunction
 from dots_utilities.model.service_calc import ServiceCalc
 
 
-class Service(ABC):
+class BaseService(ABC):
     def __init__(self, config: dict[str, Any]):
         # initialize input data container and service calc
         service_calc = self.service_calc_class(
