@@ -39,7 +39,7 @@ repos:
         name: ruff
         language: system
         entry: poetry run ruff check --fix --force-exclude
-        files: ".py$"
+        files: "(.py|.pyi)$"
         pass_filenames: true
       - id: black
         name: black
@@ -51,8 +51,8 @@ repos:
         name: pyright
         language: system
         entry: poetry run pyright
-        files: "(.py|^pyproject.toml|^poetry.lock)$"
-        pass_filenames: false
+        files: "(.py|.pyi)$"
+        pass_filenames: true
       - id: poetry-check
         name: poetry check format of pyproject.toml
         language: system
