@@ -1,81 +1,77 @@
-from collections.abc import Mapping
-from collections.abc import Sequence
-from typing import TypeAlias
-from typing import TypedDict
+from datetime import datetime
+from datetime import timezone as tz
+from typing import Annotated
+from unittest.mock import MagicMock
 
-from dots_utilities.io.io_data import IODataInterface
+from esdl import EnergyDemand
+from esdl import EnergySystem
+from pytest_mock import MockerFixture
+
 from dots_utilities.io.io_data import NewStep
-from dots_utilities.model.service_calc import CalculationFunction
-from dots_utilities.model.service_calc import ServiceCalc
+from dots_utilities.model.esdl_parser import ESDLParser
+from dots_utilities.types import CalculationServiceDescription
 from dots_utilities.types import EsdlId
-from dots_utilities.types import ESDLObject
-from dots_utilities.types import ServiceName
+from dots_utilities.types import ModelParametersDescription
+from tests.conftest import InputMessage
+from tests.conftest import MyServiceCalc
+from tests.conftest import OutputMessage
 
 
-class OutputMessage(IODataInterface):
-
-    def __init__(self, load: float):
-        self.load = load
-
-    @classmethod
-    def get_name(cls):
-        return "TestOutput"
-
-    def get_values_as_serialized_protobuf(self) -> bytes:
-        return b""
-
-    def set_values_from_serialized_protobuf(self, serialized_message: bytes):
-        pass
-
-    @classmethod
-    def get_main_topic(cls) -> str:
-        return "test_output"
-
-    @classmethod
-    def get_variable_descr(cls) -> str:
-        return "Some test data"
+def test_calculation_function_input_types(
+    service_calc: MyServiceCalc,
+):
+    assert service_calc.calculation_function_input_types == {
+        "calc": [NewStep, InputMessage]
+    }
 
 
-class InputMessage(OutputMessage):
-    def __init__(self, demand: float):
-        self.demand = demand
+def test_calculation_function(service_calc: MyServiceCalc):
+    input_messages = [InputMessage(demand=10), InputMessage(demand=12)]
+    input_data_dict = {"new_step": NewStep(), "test_input_list": input_messages}
+    result = service_calc.calc_function("calc", input_data_dict=input_data_dict)
+    assert result == ({"1234": OutputMessage(load=22)},)
 
 
-class InputData(TypedDict):
-    list_test_input: Sequence[InputMessage]
+def test_setup(
+    mock_esdl_parser: Annotated[MagicMock, type[ESDLParser]],
+    mocker: MockerFixture,
+    service_calc: MyServiceCalc,
+):
+    energy_system = EnergySystem()
+    energy_demand = EnergyDemand()
+    esdl_id: EsdlId = "1234"
+    service_calc.esdl_parser = mock_esdl_parser
+    mock_get_energy_system = mock_esdl_parser.return_value.get_energy_system
+    mock_get_energy_system.return_value = energy_system
+    mock_get_model_esdl_object = mock_esdl_parser.return_value.get_model_esdl_object
+    mock_get_model_esdl_object.return_value = energy_demand
+    now = datetime.now(tz.utc)
+    calculation_service: CalculationServiceDescription = {
+        "esdl_type": "EnergyDemand",
+        "calc_service_name": "my_service",
+        "service_image_url": "foo",
+    }
+    model_parameters: ModelParametersDescription = {
+        "esdl_ids": [esdl_id],
+        "simulation_name": "testsimulation",
+        "start_timestamp": now.timestamp(),
+        "time_step_seconds": 60,
+        "nr_of_time_steps": 1,
+        "calculation_services": [calculation_service],
+        "esdl_base64string": "",
+    }
+    process_esdl_object_spy = mocker.spy(service_calc, "process_esdl_object")
 
+    # call setup
+    service_calc.setup(model_parameters)
 
-OutputData: TypeAlias = tuple[Mapping[EsdlId, OutputMessage]]
-
-
-class MyServiceCalc(ServiceCalc[CalculationFunction[InputData, OutputData]]):
-    @property
-    def calculation_functions(
-        self,
-    ) -> Mapping[str, CalculationFunction[InputData, OutputData]]:
-        return {"calc": self.test_calc}
-
-    def test_calc(self, new_step: NewStep, input_data: InputData) -> OutputData:
-        esdl_id: EsdlId = "1234"
-        output_data = OutputMessage(load=10)
-        return ({esdl_id: output_data},)
-
-    @property
-    def receives_service_names(self) -> list[ServiceName]:
-        return ["input_service"]
-
-    def process_esdl_object(self, esdl_id: EsdlId, esdl_object: ESDLObject):
-        pass
-
-
-def test_calculation_function_input_types():
-    svc = MyServiceCalc(
-        simulation_id="",
-        model_id="",
-        influxdb_host="",
-        influxdb_port=1,
-        influxdb_password="",
-        influxdb_user="",
-        influxdb_name="",
+    # check the esdl_parser was instantiated correctly (we mocked __new__)
+    mock_esdl_parser.assert_called_once_with(
+        ESDLParser, service_calc.receives_service_names
     )
-    assert svc.calculation_function_input_types == {"calc": [InputMessage]}
+
+    mock_get_energy_system.assert_called_once_with(
+        model_parameters["esdl_base64string"]
+    )
+    mock_get_model_esdl_object.assert_called_once_with(esdl_id, energy_system)
+    process_esdl_object_spy.assert_called_once_with(esdl_id, energy_demand)
