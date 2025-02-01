@@ -1,6 +1,6 @@
-# DOTSUtilities
+# Libdots
 
-Utility functions to be used in the [DOTS](https://github.com/dots-energy/) calculation services.
+Library to build [DOTS](https://github.com/dots-energy/) calculation services.
 
 # Installation
 * `pip install libdots`
