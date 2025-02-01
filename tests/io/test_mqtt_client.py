@@ -2,10 +2,10 @@ import logging
 
 from pytest_mock import MockerFixture
 
-from dots_utilities.io.input_data_inventory import InputDataInventory
-from dots_utilities.io.io_data import NewStep
-from dots_utilities.io.mqtt_client import MqttClient
-from dots_utilities.types import EsdlId
+from libdots.io.input_data_inventory import InputDataInventory
+from libdots.io.io_data import NewStep
+from libdots.io.mqtt_client import MqttClient
+from libdots.types import EsdlId
 from tests.conftest import InputMessage
 from tests.conftest import MyServiceCalc
 from tests.conftest import OutputMessage

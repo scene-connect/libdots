@@ -3,9 +3,9 @@
 Utility functions to be used in the [DOTS](https://github.com/dots-energy/) calculation services.
 
 # Installation
-* `pip install dots_utilities`
+* `pip install libdots`
 or with extras
-* `pip install dots_utilities[google-cloud]`
+* `pip install libdots[google-cloud]`
 
 # Development
 * `poetry install --all-extras`
