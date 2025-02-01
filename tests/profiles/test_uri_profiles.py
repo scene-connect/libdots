@@ -11,7 +11,7 @@ import tenacity
 from httpx import Response
 from pytest_mock import MockFixture
 
-from dots_utilities import profiles
+from libdots import profiles
 
 
 @pytest.mark.parametrize(

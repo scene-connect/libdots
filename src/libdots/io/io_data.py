@@ -3,8 +3,8 @@ from abc import ABC
 from abc import abstractmethod
 from typing import override
 
-from dots_utilities.types import ModelParametersDescription
-from dots_utilities.types import TimeStepDescription
+from libdots.types import ModelParametersDescription
+from libdots.types import TimeStepDescription
 
 from .messages import lifecycle_pb2
 

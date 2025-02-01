@@ -3,12 +3,12 @@ from abc import ABC
 from abc import abstractmethod
 from typing import Any
 
-from dots_utilities.io.input_data_inventory import InputDataInventory
-from dots_utilities.io.mqtt_client import MqttClient
-from dots_utilities.io.mqtt_log_handler import MqttLogHandler
-from dots_utilities.model.config import ServiceConfig
-from dots_utilities.model.service_calc import CalculationFunction
-from dots_utilities.model.service_calc import ServiceCalc
+from libdots.io.input_data_inventory import InputDataInventory
+from libdots.io.mqtt_client import MqttClient
+from libdots.io.mqtt_log_handler import MqttLogHandler
+from libdots.model.config import ServiceConfig
+from libdots.model.service_calc import CalculationFunction
+from libdots.model.service_calc import ServiceCalc
 
 
 class BaseService(ABC):

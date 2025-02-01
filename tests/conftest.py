@@ -9,15 +9,15 @@ from unittest.mock import MagicMock
 import pytest
 from pytest_mock import MockerFixture
 
-from dots_utilities.io.io_data import IODataInterface
-from dots_utilities.io.io_data import NewStep
-from dots_utilities.model import service_calc
-from dots_utilities.model.esdl_parser import ESDLParser
-from dots_utilities.model.service_calc import CalculationFunction
-from dots_utilities.model.service_calc import ServiceCalc
-from dots_utilities.types import EsdlId
-from dots_utilities.types import ESDLObject
-from dots_utilities.types import ServiceName
+from libdots.io.io_data import IODataInterface
+from libdots.io.io_data import NewStep
+from libdots.model import service_calc
+from libdots.model.esdl_parser import ESDLParser
+from libdots.model.service_calc import CalculationFunction
+from libdots.model.service_calc import ServiceCalc
+from libdots.types import EsdlId
+from libdots.types import ESDLObject
+from libdots.types import ServiceName
 
 
 # An example service, input_data and messages.

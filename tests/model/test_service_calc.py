@@ -7,11 +7,11 @@ from esdl import EnergyDemand
 from esdl import EnergySystem
 from pytest_mock import MockerFixture
 
-from dots_utilities.io.io_data import NewStep
-from dots_utilities.model.esdl_parser import ESDLParser
-from dots_utilities.types import CalculationServiceDescription
-from dots_utilities.types import EsdlId
-from dots_utilities.types import ModelParametersDescription
+from libdots.io.io_data import NewStep
+from libdots.model.esdl_parser import ESDLParser
+from libdots.types import CalculationServiceDescription
+from libdots.types import EsdlId
+from libdots.types import ModelParametersDescription
 from tests.conftest import InputMessage
 from tests.conftest import MyServiceCalc
 from tests.conftest import OutputMessage
