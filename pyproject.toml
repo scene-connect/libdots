@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "dots_utilities"
-version = "0.17.0"
+version = "0.18.0"
 description = "Utility functions for the DOTS simulation framework"
 authors = ["Dolf Andringa <dolfandringa@gmail.com>"]
 readme = "README.md"
@@ -87,7 +87,7 @@ exclude_also = [
     "@abstractmethod",
     "@abc.abstractmethod",
 ]
-#fail_under = 100
+fail_under = 46 # a lot of the original code wasn't unittested tested. Tests were added but not enough.
 show_missing = true
 
 [tool.ruff.lint]

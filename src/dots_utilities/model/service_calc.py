@@ -142,8 +142,7 @@ class ServiceCalc(ABC, Generic[CalculationFunctionT]):
         """
         args: dict[str, list[type[IODataInterface]]] = {}
         for function_name, function in self.calculation_functions.items():
-            # breakpoint()
-            args[function_name] = []
+            args[function_name] = [NewStep]  # NewStep should always be expected
             function_argument_types = get_type_hints(function)
             input_data_types = get_type_hints(function_argument_types["input_data"])
             for input_data_type in input_data_types.values():
