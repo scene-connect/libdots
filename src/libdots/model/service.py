@@ -14,7 +14,7 @@ from libdots.model.service_calc import ServiceCalc
 class BaseService(ABC):
     def __init__(self, config: ServiceConfig):
         # initialize input data container and service calc
-        service_calc = self.service_calc_class(
+        self.service_calc = self.service_calc_class(
             simulation_id=config.simulation_id,
             model_id=config.model_id,
             influxdb_host=config.influxdb_host,
@@ -24,11 +24,10 @@ class BaseService(ABC):
             influxdb_name=config.influxdb_name,
         )
         self.logger = logging.getLogger()
-        mqtt_handler = MqttLogHandler(self.mqtt_client)
-        self.logger.addHandler(mqtt_handler)
 
-        input_data_inventory = InputDataInventory(
-            service_calc.calculation_function_input_types, service_calc.service_name
+        self.input_data_inventory = InputDataInventory(
+            self.service_calc.calculation_function_input_types,
+            self.service_calc.service_name,
         )
 
         # initialize mqtt client
@@ -38,11 +37,13 @@ class BaseService(ABC):
             qos=config.mqtt_qos,
             username=config.mqtt_username,
             password=config.mqtt_password.get_secret_value(),
-            input_data_inventory=input_data_inventory,
-            service_calc=service_calc,
-            service_name=service_calc.service_name,
+            input_data_inventory=self.input_data_inventory,
+            service_calc=self.service_calc,
+            service_name=self.service_calc.service_name,
             sim_logger=self.logger,
         )
+        mqtt_handler = MqttLogHandler(self.mqtt_client)
+        self.logger.addHandler(mqtt_handler)
 
     @property
     @abstractmethod

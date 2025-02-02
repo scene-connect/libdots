@@ -7,11 +7,13 @@ from typing import override
 from unittest.mock import MagicMock
 
 import pytest
+from pydantic import SecretStr
 from pytest_mock import MockerFixture
 
 from libdots.io.io_data import IODataInterface
 from libdots.io.io_data import NewStep
 from libdots.model import service_calc
+from libdots.model.config import ServiceConfig
 from libdots.model.esdl_parser import ESDLParser
 from libdots.model.service_calc import CalculationFunction
 from libdots.model.service_calc import ServiceCalc
@@ -119,3 +121,21 @@ def service_calc_fixture() -> MyServiceCalc:
         influxdb_name="",
     )
     return svc
+
+
+@pytest.fixture
+def config() -> ServiceConfig:
+    return ServiceConfig(
+        simulation_id="1234",
+        model_id="1234",
+        influxdb_host="",
+        influxdb_port=4321,
+        influxdb_user="",
+        influxdb_name="",
+        influxdb_password=SecretStr(""),
+        mqtt_qos=0,
+        mqtt_host="localhost",
+        mqtt_port=1234,
+        mqtt_username="",
+        mqtt_password=SecretStr(""),
+    )
