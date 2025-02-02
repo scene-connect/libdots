@@ -7,7 +7,20 @@ from pydantic_settings import SettingsConfigDict
 
 class ServiceConfig(BaseSettings):
     log_level: Literal[
-        "debug", "info", "warning", "warn", "error", "fatal", "critical"
+        "debug",
+        "info",
+        "warning",
+        "warn",
+        "error",
+        "fatal",
+        "critical",
+        "DEBUG",
+        "INFO",
+        "WARNING",
+        "WARN",
+        "ERROR",
+        "FATAL",
+        "CRITICAL",
     ] = "info"
     model_config = SettingsConfigDict(env_file=[".env", ".env.docker"])
     simulation_id: str
