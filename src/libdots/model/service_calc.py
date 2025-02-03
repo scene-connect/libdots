@@ -75,7 +75,6 @@ class ServiceCalc(ABC, Generic[CalculationFunctionT]):
     nr_of_time_steps: int
     esdl_energy_system: EnergySystem
     esdl_ids: list[EsdlId]
-    service_name: ServiceName
 
     def __init__(
         self,
@@ -116,10 +115,20 @@ class ServiceCalc(ABC, Generic[CalculationFunctionT]):
 
     @property
     @abstractmethod
+    def service_name(self) -> ServiceName:
+        pass
+
+    @abstractmethod
+    def base_setup(self) -> None:
+        """Setup code to run before we start looping over all individual esdl objects, but after the esdl file was parsed."""
+        pass
+
+    @property
+    @abstractmethod
     def calculation_functions(
         self,
     ) -> Mapping[str, CalculationFunctionT]:
-        """Should return a dictionary mapping calculation function names to actual class methods."""
+        """Should return a dictionary mapping calculation function names to actual methods."""
         pass
 
     @property
@@ -128,37 +137,21 @@ class ServiceCalc(ABC, Generic[CalculationFunctionT]):
         self,
     ) -> list[ServiceName]:
         """
-        Should a list of service names to listen for input data messages.
+        Should return a list of service names from which we expect input data.
         """
         return []
 
-    @property
-    def calculation_function_input_types(
-        self,
-    ) -> dict[str, list[type[IODataInterface]]]:
-        """
-        Returns a dictionary of calculation function names and a lost of IODataInterface classes in its input_data.
-        It uses typing introspection for this, and its used to tell the data inventory what data to wait for per function.
-        """
-        args: dict[str, list[type[IODataInterface]]] = {}
-        for function_name, function in self.calculation_functions.items():
-            args[function_name] = [NewStep]  # NewStep should always be expected
-            function_argument_types = get_type_hints(function)
-            input_data_types = get_type_hints(function_argument_types["input_data"])
-            for input_data_type in input_data_types.values():
-                if not get_origin(input_data_type) == Sequence:
-                    continue
-                # get the type(s) of this sequence
-                for arg in get_args(input_data_type):
-                    if issubclass(arg, IODataInterface):
-                        args[function_name].append(arg)
-        return args
-
     @abstractmethod
     def process_esdl_object(self, esdl_id: EsdlId, esdl_object: ESDLObject):
+        """
+        Code to run for each esdl object handled by this service calc.
+        """
         pass
 
     def setup_influxdb_output(self):
+        """
+        Setup the influxdb output. Runs at the send of setup.
+        """
         pass
 
     # setup is called upon receiving 'ModelParameters' message
@@ -180,6 +173,8 @@ class ServiceCalc(ABC, Generic[CalculationFunctionT]):
         self.esdl_energy_system = self.esdl_parser.get_energy_system(
             model_parameters["esdl_base64string"]
         )
+
+        self.base_setup()
 
         # get esdl objects and connected services for all esdl object in the model
         for esdl_id in self.esdl_ids:
@@ -211,6 +206,7 @@ class ServiceCalc(ABC, Generic[CalculationFunctionT]):
 
     # write_to_influxdb is called upon 'SimulationDone' message
     def write_to_influxdb(self):
+        """Write collected data to influxdb"""
         if (
             self.influxdb_client and self.influxdb_client.simulation_id
         ):  # only if created and initialized
@@ -218,6 +214,7 @@ class ServiceCalc(ABC, Generic[CalculationFunctionT]):
             self.influxdb_client.write_output()
 
     def get_profile_uri_by_id(self, id: str) -> str:
+        """Get a ESDL ProfileURI by the esdl id"""
         assert self.esdl_energy_system is not None
         for profile in self.esdl_energy_system.energySystemInformation.profiles.profile:
             if isinstance(profile, URIProfile) and profile.id == id:
@@ -230,6 +227,7 @@ class ServiceCalc(ABC, Generic[CalculationFunctionT]):
         calc_name: str,
         input_data_dict: AllInputDataInterfaceT,
     ):
+        """Gets called by mqtt client when all input data has been received."""
         try:
             # don't allow concurrent calculations on a service
             self.lock.acquire()
@@ -249,3 +247,25 @@ class ServiceCalc(ABC, Generic[CalculationFunctionT]):
         except Exception as e:
             self.lock.release()
             raise e
+
+    @property
+    def calculation_function_input_types(
+        self,
+    ) -> dict[str, list[type[IODataInterface]]]:
+        """
+        Returns a dictionary of calculation function names and a list of IODataInterface classes in its input_data.
+        It uses typing introspection for this, and its used to tell the data inventory what data to wait for per calculation function.
+        """
+        args: dict[str, list[type[IODataInterface]]] = {}
+        for function_name, function in self.calculation_functions.items():
+            args[function_name] = [NewStep]  # NewStep should always be expected
+            function_argument_types = get_type_hints(function)
+            input_data_types = get_type_hints(function_argument_types["input_data"])
+            for input_data_type in input_data_types.values():
+                if not get_origin(input_data_type) == Sequence:
+                    continue
+                # get the type(s) of this sequence
+                for arg in get_args(input_data_type):
+                    if issubclass(arg, IODataInterface):
+                        args[function_name].append(arg)
+        return args

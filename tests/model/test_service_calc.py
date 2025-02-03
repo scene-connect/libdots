@@ -65,6 +65,9 @@ def test_setup(
     # call setup
     service_calc.setup(model_parameters)
 
+    assert service_calc.service_name == "my_service"
+    assert service_calc.base_setup_called
+
     # check the esdl_parser was instantiated correctly (we mocked __new__)
     mock_esdl_parser.assert_called_once_with(
         ESDLParser, service_calc.receives_service_names
