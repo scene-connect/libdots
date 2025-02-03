@@ -20,7 +20,7 @@ def open_gcs_uri(uri: str) -> IO[bytes]:
     client = storage.Client()
     parsed_uri = urlparse(uri)
     bucket_name = parsed_uri.netloc
-    fname = parsed_uri.path
+    fname = parsed_uri.path.lstrip("/")
     bucket = client.get_bucket(bucket_name)
     blob = bucket.blob(fname)
     file = BytesIO()
