@@ -100,7 +100,7 @@ def test_open_gcs_uri(
     assert data.read() == expected_data
     mock_storage.assert_called_once_with()
     mock_client.get_bucket.assert_called_once_with(bucket_name)
-    mock_bucket.blob.assert_called_once_with(file_name)
+    mock_bucket.blob.assert_called_once_with(file_name.lstrip("/"))
     mock_blob.download_to_file.assert_called_once()
 
 
