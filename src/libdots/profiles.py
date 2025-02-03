@@ -76,7 +76,7 @@ def get_profile_csv_data(
     data_file = open_uri(uri, params)
     if data_file is None:
         raise ValueError(f"No data file found for uri {uri}")
-    data = pl.read_csv(data_file).lazy()
+    data = pl.read_csv(data_file, try_parse_dates=True).lazy()
     if sort_by is not None:
         data = data.sort(by=sort_by)
     # instantiating also validates in pandera
