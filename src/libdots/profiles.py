@@ -4,17 +4,11 @@ from logging import getLogger
 from typing import IO
 from urllib.parse import urlparse
 
+import google.cloud.storage as storage
+import httpx
 import polars as pl
 from pandera.polars import DataFrameModel
 from pandera.typing import polars as pa
-
-try:
-    # make using google storage optional
-    import google.cloud.storage as storage
-except ImportError:  # pragma: no cover
-    pass
-
-import httpx
 from tenacity import retry
 from tenacity import stop_after_attempt
 
@@ -23,7 +17,7 @@ def open_gcs_uri(uri: str) -> IO[bytes]:
     """Open Google Cloud Storage uri's (starting with gs://)"""
     logger = getLogger(__name__)
     logger.info("Downloading file from uri %s", uri)
-    client = storage.Client()  # type:ignore[reportPossiblyUnboundVariable]
+    client = storage.Client()
     parsed_uri = urlparse(uri)
     bucket_name = parsed_uri.netloc
     fname = parsed_uri.path
