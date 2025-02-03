@@ -73,10 +73,17 @@ OutputData: TypeAlias = tuple[Mapping[EsdlId, OutputMessage]]
 
 
 class MyServiceCalc(ServiceCalc[CalculationFunction[InputData, OutputData]]):
+    base_setup_called: bool
 
-    def __init__(self, *args: Any, **kwargs: Any):
-        self.service_name = "my_service"
-        super().__init__(*args, **kwargs)
+    @property
+    @override
+    def service_name(self) -> ServiceName:
+        return "my_service"
+
+    @override
+    def base_setup(self):
+        self.base_setup_called = True
+        pass
 
     @property
     def calculation_functions(
