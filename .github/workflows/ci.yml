@@ -1,8 +1,5 @@
 name: CI
 on:
-  push:
-    branches:
-      - main
   pull_request:
   workflow_dispatch:
 
@@ -45,14 +42,12 @@ jobs:
     name: Version check
     needs: [versions]
     runs-on: ubuntu-22.04
-    # Require a newer version for PRs to main or non-dependabot PRs on dev.
-    if: |
-      github.base_ref == 'main'
-      || github.actor != 'dependabot[bot]'
+    # Require a newer version for PRs other than dependabot.
+    if: github.actor != 'dependabot[bot]'
     steps:
       - uses: actions/setup-python@v5
         with:
-          cache: 'pip'
+          cache: "pip"
       - run: pip install packaging
       - name: Head poetry version newer than base
         run: python -c "from packaging import version;import sys;sys.exit( 0 if version.parse('${{ needs.versions.outputs.version-head }}') > version.parse('${{ needs.versions.outputs.version-base }}') else 1)"
@@ -66,7 +61,7 @@ jobs:
     steps:
       - uses: actions/setup-python@v5
         with:
-          cache: 'pip'
+          cache: "pip"
       - run: pip install packaging
       - name: PR with pre-release version to main
         run: python -c "from packaging import version;import sys;sys.exit( 1 if version.parse('${{ needs.versions.outputs.version-head }}').is_prerelease else 0)"
@@ -109,7 +104,8 @@ jobs:
       - uses: scene-connect/actions/python-package-manager/install-dependencies@v5
         with:
           package-manager: poetry
-          python-version: "3.11"
+          python-version: "3.12"
+          system-dependencies: libproj-dev gdal-bin
 
   lint:
     # Dependencies are required for some linters.
@@ -127,36 +123,35 @@ jobs:
       mypy: false
       package-manager: poetry
       pyright: true
-      python-version: "3.11"
+      python-version: "3.12"
       reorder-python-imports: false
       ruff: true
+      system-dependencies: libproj-dev gdal-bin
+    secrets:
+      GOOGLE_AUTHENTICATION_CREDENTIALS_JSON: ${{ secrets.GOOGLE_AUTHENTICATION_CREDENTIALS_JSON }}
 
   test:
     needs: [dependencies]
     runs-on: ubuntu-22.04
-    # Run test when dependencies succeeds.
+    # Run tests when dependencies succeeds.
     # Because dependencies contains always() we need to check the status manually, thanks github...
     if: |
       always()
       && needs.dependencies.result == 'success'
     steps:
       - uses: actions/checkout@v4
+      - name: Authenticate with Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GOOGLE_AUTHENTICATION_CREDENTIALS_JSON }}
       - uses: scene-connect/actions/python-package-manager/install-dependencies@v5
         with:
           package-manager: poetry
-          python-version: "3.11"
+          python-version: "3.12"
           with_root: true
       - name: Run pytest
         uses: liskin/gh-problem-matcher-wrap@v3
+        if: github.base_ref != 'main'
         with:
           linters: pytest
           run: poetry run pytest
-
-  poetry-build-publish:
-    needs: [lint, test]
-    uses: scene-connect/actions/.github/workflows/poetry-build-publish.yml@v5
-    if: github.actor != 'dependabot[bot]'
-    with:
-      python-version: "3.11"
-    secrets:
-      GOOGLE_AUTHENTICATION_CREDENTIALS_JSON: ${{ secrets.GOOGLE_AUTHENTICATION_CREDENTIALS_JSON }}
