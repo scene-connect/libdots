@@ -3,4 +3,5 @@ on: pull_request_target
 
 jobs:
   dependabot-auto-merge:
-    uses: scene-connect/actions/.github/workflows/dependabot-auto-merge.yml@v5
+    uses:
+      scene-connect/actions/.github/workflows/dependabot-auto-merge.yml@v5
