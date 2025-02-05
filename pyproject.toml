@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "libdots"
-version = "1.3.2"
+version = "1.4.0"
 description = "Libary for the DOTS simulation services"
 authors = ["Dolf Andringa <dolfandringa@gmail.com>"]
 readme = "README.md"
