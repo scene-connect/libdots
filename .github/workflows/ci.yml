@@ -109,7 +109,7 @@ jobs:
       - uses: scene-connect/actions/python-package-manager/install-dependencies@v5
         with:
           package-manager: poetry
-          python-version: "3.11"
+          python-version: "3.12"
 
   lint:
     # Dependencies are required for some linters.
@@ -127,7 +127,7 @@ jobs:
       mypy: false
       package-manager: poetry
       pyright: true
-      python-version: "3.11"
+      python-version: "3.12"
       reorder-python-imports: false
       ruff: true
 
@@ -144,7 +144,7 @@ jobs:
       - uses: scene-connect/actions/python-package-manager/install-dependencies@v5
         with:
           package-manager: poetry
-          python-version: "3.11"
+          python-version: "3.12"
           with_root: true
       - name: Run pytest
         uses: liskin/gh-problem-matcher-wrap@v3
@@ -157,6 +157,6 @@ jobs:
     uses: scene-connect/actions/.github/workflows/poetry-build-publish.yml@v5
     if: github.actor != 'dependabot[bot]'
     with:
-      python-version: "3.11"
+      python-version: "3.12"
     secrets:
       GOOGLE_AUTHENTICATION_CREDENTIALS_JSON: ${{ secrets.GOOGLE_AUTHENTICATION_CREDENTIALS_JSON }}
