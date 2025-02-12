@@ -1,24 +1,15 @@
-[tool.poetry]
+[project]
 name = "libdots"
-version = "1.4.0"
+version = "1.5.1a0"
 description = "Libary for the DOTS simulation services"
-authors = ["Dolf Andringa <dolfandringa@gmail.com>"]
+authors = [{name="Dolf Andringa",email="dolfandringa@gmail.com"}]
 readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE.txt"]
 packages = [{include = "libdots", from = "src"}]
 
 [[tool.poetry.source]]
 name = "PyPI"
-priority = "supplemental"
-
-[[tool.poetry.source]]
-name = "zuos-python-repo"
-url = "https://europe-north1-python.pkg.dev/zuos-342213/zuos-python-repo/"
-priority = "supplemental"
-
-[[tool.poetry.source]]
-name = "zuos-python-repo-install"
-# Can't install from above url. Can't publish to below URL. Thanks Google...
-url = "https://europe-north1-python.pkg.dev/zuos-342213/zuos-python-repo/simple/"
 priority = "primary"
 
 [tool.poetry.dependencies]
@@ -47,8 +38,6 @@ ruff = ">=0.0.283"
 pyupgrade = "^3.19.1"
 isort = "^5.13.2"
 respx = "^0.22.0"
-keyring = "*"
-keyrings-google-artifactregistry-auth = "*"
 grpcio-tools = "^1.69.0"
 types-protobuf = "^5.29.1.20241207"
 
@@ -104,6 +93,9 @@ extend_exclude = "^/typings/.*$"
 [tool.isort]
 profile = "black"
 force_single_line = "true"
+extend_skip_glob = [
+    "typings/*",
+]
 
 [build-system]
 requires = ["poetry-core"]

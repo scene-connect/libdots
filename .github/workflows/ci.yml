@@ -52,7 +52,7 @@ jobs:
     steps:
       - uses: actions/setup-python@v5
         with:
-          cache: 'pip'
+          cache: "pip"
       - run: pip install packaging
       - name: Head poetry version newer than base
         run: python -c "from packaging import version;import sys;sys.exit( 0 if version.parse('${{ needs.versions.outputs.version-head }}') > version.parse('${{ needs.versions.outputs.version-base }}') else 1)"
@@ -66,7 +66,7 @@ jobs:
     steps:
       - uses: actions/setup-python@v5
         with:
-          cache: 'pip'
+          cache: "pip"
       - run: pip install packaging
       - name: PR with pre-release version to main
         run: python -c "from packaging import version;import sys;sys.exit( 1 if version.parse('${{ needs.versions.outputs.version-head }}').is_prerelease else 0)"
@@ -102,14 +102,10 @@ jobs:
       && !contains(needs.*.result, 'cancelled')
     steps:
       - uses: actions/checkout@v4
-      - name: Authenticate with Google Cloud
-        uses: google-github-actions/auth@v2
-        with:
-          credentials_json: ${{ secrets.GOOGLE_AUTHENTICATION_CREDENTIALS_JSON }}
       - uses: scene-connect/actions/python-package-manager/install-dependencies@v5
         with:
           package-manager: poetry
-          python-version: "3.11"
+          python-version: "3.12"
 
   lint:
     # Dependencies are required for some linters.
@@ -127,7 +123,7 @@ jobs:
       mypy: false
       package-manager: poetry
       pyright: true
-      python-version: "3.11"
+      python-version: "3.12"
       reorder-python-imports: false
       ruff: true
 
@@ -144,7 +140,7 @@ jobs:
       - uses: scene-connect/actions/python-package-manager/install-dependencies@v5
         with:
           package-manager: poetry
-          python-version: "3.11"
+          python-version: "3.12"
           with_root: true
       - name: Run pytest
         uses: liskin/gh-problem-matcher-wrap@v3
@@ -152,11 +148,23 @@ jobs:
           linters: pytest
           run: poetry run pytest
 
-  poetry-build-publish:
+  poetry-build:
     needs: [lint, test]
-    uses: scene-connect/actions/.github/workflows/poetry-build-publish.yml@v5
+    runs-on: ubuntu-22.04
+    environment: PyPI
     if: github.actor != 'dependabot[bot]'
-    with:
-      python-version: "3.11"
-    secrets:
-      GOOGLE_AUTHENTICATION_CREDENTIALS_JSON: ${{ secrets.GOOGLE_AUTHENTICATION_CREDENTIALS_JSON }}
+    permissions:
+      # IMPORTANT: this permission is mandatory for Trusted Publishing
+      id-token: write # Necessary for pypi publication
+      actions: write # Necessary to cancel workflow executions
+      checks: write # Necessary to write reports
+      contents: read # Necessary to read repository
+    steps:
+      - uses: actions/checkout@v4
+      - uses: scene-connect/actions/python-package-manager/install-dependencies@v5
+        with:
+          package-manager: poetry
+          python-version: "3.12"
+          with_root: true
+      - name: Build
+        run: poetry build --no-interaction
