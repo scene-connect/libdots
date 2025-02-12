@@ -1,0 +1,21 @@
+[project]
+name = "libdots"
+version = "0.0.1"
+description = "Libary for the DOTS simulation services"
+authors = [{name="Dolf Andringa",email="dolfandringa@gmail.com"}]
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE.txt"]
+packages = [{include = "libdots", from = "src"}]
+
+[[tool.poetry.source]]
+name = "PyPI"
+priority = "primary"
+
+[tool.poetry.dependencies]
+python = ">=3.12,<3.13"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
