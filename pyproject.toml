@@ -10,17 +10,6 @@ packages = [{include = "libdots", from = "src"}]
 
 [[tool.poetry.source]]
 name = "PyPI"
-priority = "supplemental"
-
-[[tool.poetry.source]]
-name = "zuos-python-repo"
-url = "https://europe-north1-python.pkg.dev/zuos-342213/zuos-python-repo/"
-priority = "supplemental"
-
-[[tool.poetry.source]]
-name = "zuos-python-repo-install"
-# Can't install from above url. Can't publish to below URL. Thanks Google...
-url = "https://europe-north1-python.pkg.dev/zuos-342213/zuos-python-repo/simple/"
 priority = "primary"
 
 [tool.poetry.dependencies]
