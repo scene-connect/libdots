@@ -27,7 +27,7 @@ jobs:
       version-head: ${{ steps.version-head.outputs.version }}
     steps:
       - uses: actions/setup-python@v5
-      - uses: abatilo/actions-poetry@v3
+      - uses: abatilo/actions-poetry@v4
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.base_ref }}
