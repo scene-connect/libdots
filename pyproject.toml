@@ -38,8 +38,6 @@ ruff = ">=0.0.283"
 pyupgrade = "^3.19.1"
 isort = "^5.13.2"
 respx = "^0.22.0"
-keyring = "*"
-keyrings-google-artifactregistry-auth = "*"
 grpcio-tools = "^1.69.0"
 types-protobuf = "^5.29.1.20241207"
 
