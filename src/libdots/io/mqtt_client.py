@@ -37,6 +37,10 @@ SIMULATION_DONE = "simulations_done"
 
 
 class MqttClient:
+    """
+    The MQTT Client handling receiving and sending MQTT messages.
+    """
+
     def __init__(
         self,
         host: str,

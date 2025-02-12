@@ -1,6 +1,6 @@
 [project]
 name = "libdots"
-version = "1.5.1a0"
+version = "1.5.1a1"
 description = "Libary for the DOTS simulation services"
 authors = [{name="Dolf Andringa",email="dolfandringa@gmail.com"}]
 readme = "README.md"
@@ -8,9 +8,17 @@ license = "Apache-2.0"
 license-files = ["LICENSE.txt"]
 packages = [{include = "libdots", from = "src"}]
 
+[project.urls]
+Homepage = "https://github.com/scene-connect/libdots"
+Repository = "https://github.com/scene-connect/libdots.git"
+Issues = "https://github.com/scene-connect/libdots/issues"
+
 [[tool.poetry.source]]
 name = "PyPI"
 priority = "primary"
+
+[tool.poetry.requires-plugins]
+poetry-plugin-export = ">=1.8"
 
 [tool.poetry.dependencies]
 python = ">=3.12,<3.13"
@@ -26,7 +34,6 @@ pyesdl = "^24.11.2"
 influxdb = ">=5.3.1,<5.4.0"
 pydantic-settings = {extras = ["dotenv"], version = "^2.7.1"}
 
-
 [tool.poetry.group.dev.dependencies]
 black = ">=23.7.0"
 pre-commit = ">=3.3.3"
@@ -40,6 +47,16 @@ isort = "^5.13.2"
 respx = "^0.22.0"
 grpcio-tools = "^1.69.0"
 types-protobuf = "^5.29.1.20241207"
+
+[tool.poetry.group.docs]
+optional = true
+
+[tool.poetry.group.docs.dependencies]
+sphinx = "^8.1.3"
+sphinx-rtd-theme = "^3.0.2"
+sphinx-notfound-page = "^1.1.0"
+sphinx-autodoc-typehints = "^3.0.1"
+
 
 [tool.pyright]
 stubPath = "./typings"
@@ -85,16 +102,18 @@ ignore = ["E501"]
 [tool.ruff]
 extend-exclude = [
     "typings/*",
+    ".poetry/*",
 ]
 
 [tool.black]
-extend_exclude = "^/typings/.*$"
+extend_exclude = "^/(typings|.poetry)/.*$"
 
 [tool.isort]
 profile = "black"
 force_single_line = "true"
 extend_skip_glob = [
     "typings/*",
+    ".poetry/*",
 ]
 
 [build-system]
