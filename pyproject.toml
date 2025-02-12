@@ -1,9 +1,11 @@
-[tool.poetry]
+[project]
 name = "libdots"
-version = "1.4.0"
+version = "1.5.0"
 description = "Libary for the DOTS simulation services"
-authors = ["Dolf Andringa <dolfandringa@gmail.com>"]
+authors = [{name="Dolf Andringa",email="dolfandringa@gmail.com"}]
 readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE.txt"]
 packages = [{include = "libdots", from = "src"}]
 
 [[tool.poetry.source]]
