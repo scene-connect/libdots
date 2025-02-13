@@ -102,12 +102,16 @@ class ServiceCalc(ABC, Generic[CalculationFunctionT]):
 
     # filled during setup
     esdl_parser: ESDLParser
-    simulation_name: str
-    simulation_start_date: datetime
-    time_step_seconds: int
-    nr_of_time_steps: int
-    esdl_energy_system: EnergySystem
-    esdl_ids: list[EsdlId]
+    simulation_name: str  # the name of this simulation. Set during setup.
+    simulation_start_date: (
+        datetime  # start date/time of the simulation. Set during setup.
+    )
+    time_step_seconds: int  # Number of seconds per time step. Set during setup.
+    nr_of_time_steps: int  # Total number of time steps to simulate. Set during setup.
+    esdl_energy_system: EnergySystem  # The fully parsed esdl system from the esdl file. Set during setup, before running `process_esdl_object`.
+    esdl_ids: list[
+        EsdlId
+    ]  # The list of esdl_ids that this Model Service instance should handle. Set during setup.
 
     def __init__(
         self,

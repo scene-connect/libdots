@@ -27,7 +27,10 @@ A model service:
 * handles one or more ESDL types
 * can take inputs from other Model Services
 * can produce output to be used by other Model Services
-* can run with multiple workers in parallel sharing the load of simulating multiple ESDL objects of the same type
+* can run with multiple workers in parallel sharing the load of simulating multiple ESDL objects of the same type.
+  The model service orchestrator divides the esdl objects (by giving it a list of esdl id's to process) of the
+  applicable type(s) equally over the number of model services you specified in your simulation request.
+
 
 Each model service consists of one Calculation Service, which can have one or more calculation functions.
 Most Calculation Services contain only a single function which contains the logic. For this function you
@@ -218,18 +221,19 @@ And it can optionally implement:
 Receiving input data
 ^^^^^^^^^^^^^^^^^^^^
 
-*TODO*
+**TODO**
 
 Reading static profile data
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-*TODO*
+**TODO**
 
 Generating input/output MQTT message types
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Define protobuf messages for instance in ``my_model.io.message_definitions``
 You can then compile them into python classes with
+
 .. code-block:: bash
 
     python3 -m grpc_tools.protoc -I=my_model/io/message_definitions --python_out=my_model/io/messages --pyi_out=./my_model/io/messages  my_model/io/message_definitions/*.proto
@@ -242,7 +246,8 @@ to be used as input/output data from the Calculation Service.
 
 This is an example for our ``Load`` object used above as output:
 
-..code-block:: python
+
+.. code-block:: python
 
     from typing import override
 
@@ -255,7 +260,7 @@ This is an example for our ``Load`` object used above as output:
     class Load(IODataInterface):
 
         # Attributes for this message.
-        kw: float
+        kw: float # kW value
         origin_esdl_id: EsdlId # source esdl_id of the ESDL object this message came from.
 
         def __init__(self, origin_esdl_id: EsdlId | None = None, kw: float | None = None):
@@ -265,7 +270,7 @@ This is an example for our ``Load`` object used above as output:
                 self.kw = kw
 
         @override
-        def set_values_from_serialized_protobuf(self, serialized_message: bytes):
+        def set_values_from_serialized_protobuf(self, serialized_message: bytes) -> None:
             """Generate the protobuf messages from this object."""
             config_data = messages.Load()
             config_data.ParseFromString(serialized_message)
@@ -274,7 +279,7 @@ This is an example for our ``Load`` object used above as output:
 
         @override
         def get_values_as_serialized_protobuf(self) -> bytes:
-            """Load the protobuf messages into the object,"""
+            """Load the protobuf message data into this object."""
             protobuf_message = messages.Load()
             protobuf_message.origin_esdl_id = self.origin_esdl_id
             protobuf_message.kw = self.kw
@@ -291,8 +296,15 @@ This is an example for our ``Load`` object used above as output:
             """The topic to send data on"""
             return "/data/base_loads/model"
 
-        @classmbuethod
+        @classmethod
         @override
         def get_variable_descr(cls) -> str:
             """Text description of the attributes."""
             return "{'kw': 'float'}"
+
+
+
+Full example
+------------
+
+**TODO**

@@ -35,6 +35,7 @@ class ServiceConfig(BaseSettings):
     statement when instantiating it. pydantic-settings reads the missing
     parameters from environment variables so the missing parameters can be
     safely ignored.
+
         .. code-block:: python
 
             config = ServiceConfig() # pyright:ignore[reportCallIssue]

@@ -33,12 +33,12 @@ class IODataInterface(ABC):
 
     @abstractmethod
     def set_values_from_serialized_protobuf(self, serialized_message: bytes):
-        """Set values from protobuf message"""
+        """Set values on this object from the protobuf encoded message."""
         pass
 
     @abstractmethod
     def get_values_as_serialized_protobuf(self) -> bytes:
-        """Get dictionary with all variables"""
+        """Get a protobuf encoded message with all variables."""
         pass
 
     @classmethod

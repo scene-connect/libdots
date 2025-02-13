@@ -79,7 +79,7 @@ repos:
       - id: docs
         name: docs
         language: system
-        entry: poetry run sphinx-build -M html docs/ docs/_build
+        entry: poetry build-docs
         pass_filenames: false
       - id: pytest
         name: pytest

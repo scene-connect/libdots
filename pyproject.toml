@@ -19,6 +19,7 @@ priority = "primary"
 
 [tool.poetry.requires-plugins]
 poetry-plugin-export = ">=1.8"
+poethepoet = ">=0.32.2"
 
 [tool.poetry.dependencies]
 python = ">=3.12,<3.13"
@@ -57,6 +58,11 @@ sphinx-rtd-theme = "^3.0.2"
 sphinx-notfound-page = "^1.1.0"
 sphinx-autodoc-typehints = "^3.0.1"
 
+[tool.poe]
+poetry_command = ""
+
+[tool.poe.tasks]
+build-docs = "sphinx-build -M html docs/ docs/_build/"
 
 [tool.pyright]
 stubPath = "./typings"
