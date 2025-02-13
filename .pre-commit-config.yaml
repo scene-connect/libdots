@@ -76,6 +76,11 @@ repos:
         language: system
         entry: sh -c 'git fetch && ! git --no-pager diff origin/dev --quiet --exit-code -G "version" -- pyproject.toml'
         pass_filenames: false
+      - id: docs
+        name: docs
+        language: system
+        entry: poetry run sphinx-build -M html docs/ docs/_build
+        pass_filenames: false
       - id: pytest
         name: pytest
         language: system

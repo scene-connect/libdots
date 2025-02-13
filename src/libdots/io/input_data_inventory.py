@@ -23,24 +23,41 @@ from .io_data import NewStep
 
 
 class InputDataInventory:
+    """
+    The input data inventory. This tracks the incoming mqtt messages and whether all required
+    messages have been received for a specific calculation function.
+
+
+    :param calculation_messages: A dictionary of function names and message types it should receive.
+    :param service_name: The name of the calculation service.
+
+
+    An example for calculation_messages looks like this
+
+        .. code-block:: python
+
+            {
+                "post_battery": [NewStep, ChargeConsumption, Supply],
+                "pre_battery": [NewStep, Load, PvOutput, Import, Export],
+            }
+
+    This defines that there are 2 calculation functions for the calculstion service and what
+    message type each of them requires as input.
+
+    """
+
     def __init__(
         self,
         calculation_messages: dict[str, list[type[IODataInterface]]],
         service_name: str,
     ):
+
         self.lock = Lock()
         self.logger = logging.getLogger(__name__)
         self.service_name = service_name
 
         # required data class types per calculation
         self.calcs_input_classes = calculation_messages
-        """
-        example:
-        self.calcs_input_classes: dict = {
-            "post_battery": [NewStep, ChargeConsumption, Supply],
-            "pre_battery": [NewStep, Load, PvOutput, Import, Export],
-        }
-        """
 
         # expected ESDL objects (id's), per calculation service (identified by main topic) providing input
         self._expected_esdl_ids_dict: dict[str, list[EsdlId]] | None = None

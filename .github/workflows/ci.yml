@@ -148,6 +148,18 @@ jobs:
           linters: pytest
           run: poetry run pytest
 
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: scene-connect/actions/python-package-manager/install-dependencies@v5
+        with:
+          package-manager: poetry
+          python-version: "3.12"
+          with_root: true
+      - name: Sphinx
+        run: poetry run sphinx-build -M html docs/ docs/_build
+
   poetry-build:
     needs: [lint, test]
     runs-on: ubuntu-22.04

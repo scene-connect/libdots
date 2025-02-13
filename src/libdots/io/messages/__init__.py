@@ -13,9 +13,48 @@
 #      Scene Ltd   - Development of libdots
 #  Manager:
 #      Scene Ltd
+from .healthcheck_pb2 import HealthStatus
+from .healthcheck_pb2 import PingHealthMSOToModel
+from .healthcheck_pb2 import PingHealthSOToMSO
+from .healthcheck_pb2 import PongHealthModelToMSO
+from .healthcheck_pb2 import PongHealthMSOToSO
+from .lifecycle_pb2 import AllModelsHaveTerminated
 from .lifecycle_pb2 import CalculationsDone
+from .lifecycle_pb2 import DeployModels
+from .lifecycle_pb2 import EnvironmentVariable
 from .lifecycle_pb2 import ErrorOccurred
+from .lifecycle_pb2 import ModelConfiguration
+from .lifecycle_pb2 import ModelHasTerminated
+from .lifecycle_pb2 import ModelParameters
+from .lifecycle_pb2 import ModelsReady
+from .lifecycle_pb2 import NewStep
 from .lifecycle_pb2 import Parameterized
 from .lifecycle_pb2 import ReadyForProcessing
+from .lifecycle_pb2 import SimulationDone
+from .lifecycle_pb2 import TerminationStatus
+from .lifecycle_pb2 import UnhealthyModel
+from .lifecycle_pb2 import UnhealthyModelStatus
 
-__all__ = ["CalculationsDone", "ErrorOccurred", "Parameterized", "ReadyForProcessing"]
+__all__ = [
+    "AllModelsHaveTerminated",
+    "CalculationsDone",
+    "DeployModels",
+    "EnvironmentVariable",
+    "ErrorOccurred",
+    "HealthStatus",
+    "Parameterized",
+    "ReadyForProcessing",
+    "ModelConfiguration",
+    "ModelHasTerminated",
+    "ModelParameters",
+    "ModelsReady",
+    "NewStep",
+    "PingHealthMSOToModel",
+    "PingHealthSOToMSO",
+    "PongHealthModelToMSO",
+    "PongHealthMSOToSO",
+    "SimulationDone",
+    "TerminationStatus",
+    "UnhealthyModel",
+    "UnhealthyModelStatus",
+]
