@@ -25,15 +25,20 @@ from .messages import lifecycle_pb2
 
 
 class IODataInterface(ABC):
+    """
+    Abstract class defining incoming our outgoing messages.
+    The actual data is comming from the messages in the :py:mod:`.messages`
+    module, and those are compiled from protobuf in message_definitions.
+    """
 
     @abstractmethod
     def set_values_from_serialized_protobuf(self, serialized_message: bytes):
-        """Set values from protobuf message"""
+        """Set values on this object from the protobuf encoded message."""
         pass
 
     @abstractmethod
     def get_values_as_serialized_protobuf(self) -> bytes:
-        """Get dictionary with all variables"""
+        """Get a protobuf encoded message with all variables."""
         pass
 
     @classmethod
@@ -87,6 +92,8 @@ class ModelParameters(IODataInterface):
 
 
 class NewStep(IODataInterface):
+    """Messages that are sent over MQTT for each new timestep."""
+
     parameters_dict: TimeStepDescription
 
     @override

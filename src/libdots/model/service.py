@@ -27,6 +27,33 @@ from libdots.model.service_calc import ServiceCalc
 
 
 class BaseService(ABC):
+    """
+    Abstract Base Class for the actual Service object.
+    This object needs to be overriden and its :py:attr:`service_calc_class` property implemented.
+
+    This can be done like this:
+
+        .. code-block:: python
+
+            from typing import override
+
+            from libdots.model.config import ServiceConfig
+            from libdots.model.service import BaseService
+            from libdots.model.service_calc import CalculationFunction
+            from libdots.model.service_calc import ServiceCalc
+            from .service_cal import MyServiceCalc
+
+            class MyService(BaseService):
+                @property
+                @override
+                def service_calc_class(self):
+                    return MyServiceCalc
+
+            config = ServiceConfig() # pyright:ignore[reportCallIssue]
+            service = MyService(config)
+            service.start()
+    """
+
     def __init__(self, config: ServiceConfig):
         # initialize input data container and service calc
         self.service_calc = self.service_calc_class(
@@ -63,6 +90,9 @@ class BaseService(ABC):
     @property
     @abstractmethod
     def service_calc_class(self) -> type[ServiceCalc[CalculationFunction[Any, Any]]]:
+        """
+        Return the class (type not instance) to be instantiated in this Service.
+        """
         pass
 
     def start(self):

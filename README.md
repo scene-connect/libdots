@@ -8,6 +8,14 @@ or with extras
 * `pip install libdots[google-cloud]`
 
 # Development
-* `poetry install --all-extras`
+* `poetry self add poethepoet poetry-plugin-export`
+* `poetry install --all-extras --with=docs`
 * `poetry run pre-commit install`
 * `poetry run pytest`
+
+# Generate docs
+* `poetry install --with=docs`
+* `poetry build-docs`
+
+Generate requirements.txt in docs:
+* `poetry export --only=docs > docs/requirements.txt`

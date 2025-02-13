@@ -21,6 +21,26 @@ from pydantic_settings import SettingsConfigDict
 
 
 class ServiceConfig(BaseSettings):
+    """
+    The configuration of the calculation service.
+    This uses `pydantic_settings <https://docs.pydantic.dev/latest/concepts/pydantic_settings/>`_
+    with `dotenv <https://docs.pydantic.dev/latest/concepts/pydantic_settings/#dotenv-env-support>`_ support.
+    Configuration values are (case-insensitive) read from:
+
+        * environment variables
+        * .env
+        * .env.docker
+
+    If you're using pyright's strict typing in your library, you need to add an ignore
+    statement when instantiating it. pydantic-settings reads the missing
+    parameters from environment variables so the missing parameters can be
+    safely ignored.
+
+        .. code-block:: python
+
+            config = ServiceConfig() # pyright:ignore[reportCallIssue]
+    """
+
     log_level: Literal[
         "debug",
         "info",
@@ -37,7 +57,10 @@ class ServiceConfig(BaseSettings):
         "FATAL",
         "CRITICAL",
     ] = "info"
+
     model_config = SettingsConfigDict(env_file=[".env", ".env.docker"])
+    """:meta private:"""
+
     simulation_id: str
     model_id: str
     mqtt_host: str = "localhost"

@@ -70,6 +70,8 @@ AllInputDataInterfaceT = Mapping[
 
 
 class CalculationFunction(Protocol[InputDataInterfaceT, OutputDataInterfaceT]):
+    """Protocol describing the calculation functions."""
+
     def __call__(
         self, new_step: NewStep, input_data: InputDataInterfaceT
     ) -> OutputDataInterfaceT: ...
@@ -81,15 +83,35 @@ CalculationFunctionT = TypeVar(
 
 
 class ServiceCalc(ABC, Generic[CalculationFunctionT]):
+    """
+    Abstract Base Class for the main calculation service.
+    The calculation service has 4 stages:
+
+        * __init__: Initialize the class and its parameters
+        * setup: After the first mqtt message is received
+          with the ESDL file and model parameters, parses the energy system
+          and runs similar setup code.
+        * time step: For each time step, the corresponding calculation functions
+          are called once their required input data was received
+        * teardown: Store all data in influxdb
+
+    There can be multiple calculation functions per service. Each function
+    can have its own input and output data. This makes it possible to have
+    multiple stages of calculation in a single service.
+    """
 
     # filled during setup
     esdl_parser: ESDLParser
-    simulation_name: str
-    simulation_start_date: datetime
-    time_step_seconds: int
-    nr_of_time_steps: int
-    esdl_energy_system: EnergySystem
-    esdl_ids: list[EsdlId]
+    simulation_name: str  # the name of this simulation. Set during setup.
+    simulation_start_date: (
+        datetime  # start date/time of the simulation. Set during setup.
+    )
+    time_step_seconds: int  # Number of seconds per time step. Set during setup.
+    nr_of_time_steps: int  # Total number of time steps to simulate. Set during setup.
+    esdl_energy_system: EnergySystem  # The fully parsed esdl system from the esdl file. Set during setup, before running `process_esdl_object`.
+    esdl_ids: list[
+        EsdlId
+    ]  # The list of esdl_ids that this Model Service instance should handle. Set during setup.
 
     def __init__(
         self,
@@ -131,11 +153,15 @@ class ServiceCalc(ABC, Generic[CalculationFunctionT]):
     @property
     @abstractmethod
     def service_name(self) -> ServiceName:
+        """The name of the service."""
         pass
 
     @abstractmethod
     def base_setup(self) -> None:
-        """Setup code to run before we start looping over all individual esdl objects, but after the esdl file was parsed."""
+        """
+        Setup code to run before we start looping over all individual esdl objects, but after the esdl file was parsed.
+        This can for instance be used to setup data from static profiles using URIProfile's in the ESDL file.
+        """
         pass
 
     @property
@@ -143,7 +169,24 @@ class ServiceCalc(ABC, Generic[CalculationFunctionT]):
     def calculation_functions(
         self,
     ) -> Mapping[str, CalculationFunctionT]:
-        """Should return a dictionary mapping calculation function names to actual methods."""
+        """
+        Determines what message types we expect as input data per calculation function before it can run.
+        This data comes from the calculation services that we expect input data from.
+        Once each of the message types is received for the current timestep, the corresponding function is started.
+
+        Should return a dictionary mapping calculation function names to actual methods.
+        Example
+
+            .. code-block:: python
+
+                {
+                    "pre_battery": self.pre_battery,
+                    "post_battery": self.post_battery
+                }
+
+        This defines there are two calculation functions with the names pre_battery and post_battery and references
+        the functions that run the logic for each timestep once all required data has been received.
+        """
         pass
 
     @property
@@ -152,20 +195,22 @@ class ServiceCalc(ABC, Generic[CalculationFunctionT]):
         self,
     ) -> list[ServiceName]:
         """
-        Should return a list of service names from which we expect input data.
+        Used during the model __init__. Should contain the names of the calculation services this
+        service is expecting input data from.
         """
         return []
 
     @abstractmethod
     def process_esdl_object(self, esdl_id: EsdlId, esdl_object: ESDLObject):
         """
-        Code to run for each esdl object handled by this service calc.
+        Runs during the model setup phase. This code runs for each esdl object handled by this calculation service.
         """
         pass
 
     def setup_influxdb_output(self):
         """
-        Setup the influxdb output. Runs at the send of setup.
+        Setup the output to store in influxdb. Runs at the send of setup.
+        This is optional, and determines the fields to store in influxdb for each step.
         """
         pass
 
