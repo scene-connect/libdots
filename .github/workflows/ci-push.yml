@@ -47,6 +47,12 @@ jobs:
     runs-on: ubuntu-22.04
     environment: PyPI
     if: github.actor != 'dependabot[bot]'
+    permissions:
+      # IMPORTANT: this permission is mandatory for Trusted Publishing
+      id-token: write # Necessary for pypi publication
+      actions: write # Necessary to cancel workflow executions
+      checks: write # Necessary to write reports
+      contents: read # Necessary to read repository
     steps:
       - uses: actions/checkout@v4
       - uses: scene-connect/actions/python-package-manager/install-dependencies@v5
