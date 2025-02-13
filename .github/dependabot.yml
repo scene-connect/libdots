@@ -20,8 +20,5 @@ updates:
       interval: "daily"
       time: "08:00"
       timezone: "Europe/London"
-    registries:
-      - zuos-python-repo
-      - zuos-python-repo-install
     open-pull-requests-limit: 1
     insecure-external-code-execution: allow # apparently pip executes code see https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file#insecure-external-code-execution
