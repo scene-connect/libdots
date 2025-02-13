@@ -157,6 +157,7 @@ jobs:
           package-manager: poetry
           python-version: "3.12"
           with_root: true
+          groups: "docs"
       - name: Sphinx
         run: poetry run sphinx-build -M html docs/ docs/_build
 
