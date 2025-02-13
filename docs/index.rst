@@ -13,7 +13,7 @@ Libdots documentation
     :target: https://pypi.org/project/libdots/
 .. image:: https://img.shields.io/github/license/scene-connect/libdots.svg?logo=github&logoColor=white
    :target: https://github.com/scene-connect/libdots/blob/master/LICENSE.txt
-.. image:: https://img.shields.io/github/actions/workflow/status/scene-connect/libdots/ci.yml.svg?logo=python&logoColor=white
+.. image:: https://img.shields.io/github/actions/workflow/status/scene-connect/libdots/ci.yml?branch=main&logo=python&logoColor=white
    :alt: GitHub Actions Workflow Status
    :target: https://github.com/scene-connect/libdots/actions/workflows/ci.yml
 
