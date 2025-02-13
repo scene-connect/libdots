@@ -1,0 +1,60 @@
+name: CI - push
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  # Always run for each PR to tag and build docker container for the PR,
+  # even if another is queued with another version tag.
+  cancel-in-progress: false
+
+jobs:
+  poetry:
+    # Always run on push except for dependabot PRs.
+    if: github.actor != 'dependabot[bot]'
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      pre_release: ${{ steps.pre_release.outputs.pre_release }}
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/setup-python@v5
+      - uses: abatilo/actions-poetry@v4
+      - uses: actions/checkout@v4
+      - run: pip install packaging
+      - id: version
+        run: echo "version=`poetry version --short --no-interaction`" >> $GITHUB_OUTPUT
+      - id: package
+        run: echo "package=`poetry version --no-interaction | grep -o '[.[:alnum:]_-]\+$'`" >> $GITHUB_OUTPUT
+      - id: pre_release
+        name: Is the version pre-release
+        run: python -c "from packaging import version;print('pre_release=1') if version.parse('${{ steps.version.outputs.version }}').is_prerelease else print('pre_release=0')" >> $GITHUB_OUTPUT
+  git-tag:
+    needs: [poetry]
+    runs-on: ubuntu-22.04
+    if: needs.poetry.outputs.pre_release == '1' || github.ref_name == 'main'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+      - run: git tag "${{ needs.poetry.outputs.version }}"
+      - run: git push origin "${{ needs.poetry.outputs.version }}"
+
+  poetry-build-publish:
+    needs: [git-tag]
+    runs-on: ubuntu-22.04
+    environment: PyPI
+    if: github.actor != 'dependabot[bot]'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: scene-connect/actions/python-package-manager/install-dependencies@v5
+        with:
+          package-manager: poetry
+          python-version: "3.12"
+          with_root: true
+      - name: Build
+        run: poetry build --no-interaction
+      - name: Publish package distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
