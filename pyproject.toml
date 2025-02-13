@@ -1,6 +1,6 @@
 [project]
 name = "libdots"
-version = "1.7.0a0"
+version = "1.7.0a1"
 description = "Libary for the DOTS simulation services"
 authors = [{name="Dolf Andringa",email="dolfandringa@gmail.com"}]
 readme = "README.md"
