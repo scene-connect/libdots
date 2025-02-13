@@ -12,6 +12,7 @@ packages = [{include = "libdots", from = "src"}]
 Homepage = "https://github.com/scene-connect/libdots"
 Repository = "https://github.com/scene-connect/libdots.git"
 Issues = "https://github.com/scene-connect/libdots/issues"
+Documentation = "https://libdots.readthedocs.io/"
 
 [[tool.poetry.source]]
 name = "PyPI"
