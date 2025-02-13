@@ -1,0 +1,97 @@
+name: CI
+on:
+  push:
+    branches:
+      - dev
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  dependencies:
+    runs-on: ubuntu-22.04
+    # Run dependencies if version checks succeeded or skipped.
+    # Save a little time on repeating dependencies/lint/test if version checks failed.
+    steps:
+      - uses: actions/checkout@v4
+      - uses: scene-connect/actions/python-package-manager/install-dependencies@v5
+        with:
+          package-manager: poetry
+          python-version: "3.12"
+
+  lint:
+    # Dependencies are required for some linters.
+    needs: [dependencies]
+    uses: scene-connect/actions/.github/workflows/lint-python.yml@v5
+    # Run lint when dependencies succeeds.
+    # Because dependencies contains always() we need to check the status manually, thanks github...
+    if: |
+      always()
+      && needs.dependencies.result == 'success'
+    with:
+      django-upgrade: false
+      flake8: false
+      isort: true
+      mypy: false
+      package-manager: poetry
+      pyright: true
+      python-version: "3.12"
+      reorder-python-imports: false
+      ruff: true
+
+  test:
+    needs: [dependencies]
+    runs-on: ubuntu-22.04
+    # Run test when dependencies succeeds.
+    # Because dependencies contains always() we need to check the status manually, thanks github...
+    if: |
+      always()
+      && needs.dependencies.result == 'success'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: scene-connect/actions/python-package-manager/install-dependencies@v5
+        with:
+          package-manager: poetry
+          python-version: "3.12"
+          with_root: true
+      - name: Run pytest
+        uses: liskin/gh-problem-matcher-wrap@v3
+        with:
+          linters: pytest
+          run: poetry run pytest
+
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: scene-connect/actions/python-package-manager/install-dependencies@v5
+        with:
+          package-manager: poetry
+          python-version: "3.12"
+          with_root: true
+          groups: "docs"
+      - name: Sphinx
+        run: poetry run sphinx-build -M html docs/ docs/_build
+
+  poetry-build:
+    needs: [lint, test]
+    runs-on: ubuntu-22.04
+    environment: PyPI
+    if: github.actor != 'dependabot[bot]'
+    permissions:
+      # IMPORTANT: this permission is mandatory for Trusted Publishing
+      id-token: write # Necessary for pypi publication
+      actions: write # Necessary to cancel workflow executions
+      checks: write # Necessary to write reports
+      contents: read # Necessary to read repository
+    steps:
+      - uses: actions/checkout@v4
+      - uses: scene-connect/actions/python-package-manager/install-dependencies@v5
+        with:
+          package-manager: poetry
+          python-version: "3.12"
+          with_root: true
+      - name: Build
+        run: poetry build --no-interaction
