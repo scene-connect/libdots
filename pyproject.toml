@@ -9,7 +9,7 @@ license-files = ["LICENSE.txt"]
 packages = [{include = "libdots", from = "src"}]
 
 [project.urls]
-Homepage = "https://github.com/scene-connect/libdots"
+Homepage = "https://libdots.readthedocs.io/"
 Repository = "https://github.com/scene-connect/libdots.git"
 Issues = "https://github.com/scene-connect/libdots/issues"
 Documentation = "https://libdots.readthedocs.io/"
