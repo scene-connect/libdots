@@ -1,17 +1,4 @@
 version: 2
-registries:
-  zuos-python-repo:
-    type: python-index
-    url: https://europe-north1-python.pkg.dev/zuos-342213/zuos-python-repo/
-    username: _json_key_base64
-    password: ${{secrets.GOOGLE_AUTHENTICATION_KEY_BASE64}}
-    replaces-base: false
-  zuos-python-repo-install:
-    type: python-index
-    url: https://europe-north1-python.pkg.dev/zuos-342213/zuos-python-repo/simple/
-    username: _json_key_base64
-    password: ${{secrets.GOOGLE_AUTHENTICATION_KEY_BASE64}}
-    replaces-base: false
 updates:
   - package-ecosystem: "github-actions"
     directory: "/"
