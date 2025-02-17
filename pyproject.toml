@@ -1,6 +1,6 @@
 [project]
 name = "libdots"
-version = "1.6.2"
+version = "1.6.3"
 description = "Libary for the DOTS simulation services"
 authors = [{name="Dolf Andringa",email="dolfandringa@gmail.com"}]
 readme = "README.md"
@@ -9,10 +9,10 @@ license-files = ["LICENSE.txt"]
 packages = [{include = "libdots", from = "src"}]
 
 [project.urls]
-Homepage = "https://libdots.readthedocs.io/"
-Repository = "https://github.com/scene-connect/libdots.git"
-Issues = "https://github.com/scene-connect/libdots/issues"
-Documentation = "https://libdots.readthedocs.io/"
+repository = "https://github.com/scene-connect/libdots.git"
+issues = "https://github.com/scene-connect/libdots/issues"
+documentation = "https://libdots.readthedocs.io/"
+homepage = "https://libdots.readthedocs.io/"
 
 [[tool.poetry.source]]
 name = "PyPI"

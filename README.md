@@ -2,6 +2,9 @@
 
 Library to build [DOTS](https://github.com/dots-energy/) calculation services.
 
+# Documentation
+* https://libdots.readthedocs.io/en/latest/
+
 # Installation
 * `pip install libdots`
 or with extras

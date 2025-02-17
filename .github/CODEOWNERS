@@ -4,4 +4,6 @@
 poetry.lock
 pyproject.toml
 .github/workflows/ci.yml
+.github/workflows/ci-dev.yml
+.github/workflows/ci-push.yml
 .pre-commit-config.yaml
