@@ -22,7 +22,7 @@ jobs:
     steps:
       - uses: actions/setup-python@v5
       - uses: abatilo/actions-poetry@v4
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - run: pip install packaging
       - id: version
         run: echo "version=`poetry version --short --no-interaction`" >> $GITHUB_OUTPUT
@@ -36,7 +36,7 @@ jobs:
     runs-on: ubuntu-22.04
     if: needs.poetry.outputs.pre_release == '1' || github.ref_name == 'main'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-tags: true
       - run: git tag "${{ needs.poetry.outputs.version }}"
@@ -54,7 +54,7 @@ jobs:
       checks: write # Necessary to write reports
       contents: read # Necessary to read repository
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: scene-connect/actions/python-package-manager/install-dependencies@v5
         with:
           package-manager: poetry
