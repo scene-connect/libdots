@@ -15,7 +15,7 @@ jobs:
     # Run dependencies if version checks succeeded or skipped.
     # Save a little time on repeating dependencies/lint/test if version checks failed.
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: scene-connect/actions/python-package-manager/install-dependencies@v5
         with:
           package-manager: poetry
@@ -50,7 +50,7 @@ jobs:
       always()
       && needs.dependencies.result == 'success'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: scene-connect/actions/python-package-manager/install-dependencies@v5
         with:
           package-manager: poetry
@@ -65,7 +65,7 @@ jobs:
   docs:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: scene-connect/actions/python-package-manager/install-dependencies@v5
         with:
           package-manager: poetry
@@ -87,7 +87,7 @@ jobs:
       checks: write # Necessary to write reports
       contents: read # Necessary to read repository
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: scene-connect/actions/python-package-manager/install-dependencies@v5
         with:
           package-manager: poetry

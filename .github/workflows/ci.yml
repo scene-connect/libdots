@@ -25,13 +25,13 @@ jobs:
     steps:
       - uses: actions/setup-python@v5
       - uses: abatilo/actions-poetry@v4
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ref: ${{ github.base_ref }}
       - name: Get base package version
         id: version-base
         run: echo "version=`poetry version --short --no-interaction`" >> $GITHUB_OUTPUT
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ref: ${{ github.head_ref }}
       - name: Get head package version
@@ -75,7 +75,7 @@ jobs:
     # Check git tags don't already exist for non-dependabot PRs.
     if: github.actor != 'dependabot[bot]'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-tags: true
       - name: Check for existing tag
@@ -98,7 +98,7 @@ jobs:
       && !contains(needs.*.result, 'failure')
       && !contains(needs.*.result, 'cancelled')
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: scene-connect/actions/python-package-manager/install-dependencies@v5
         with:
           package-manager: poetry
@@ -133,7 +133,7 @@ jobs:
       always()
       && needs.dependencies.result == 'success'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: scene-connect/actions/python-package-manager/install-dependencies@v5
         with:
           package-manager: poetry
@@ -148,7 +148,7 @@ jobs:
   docs:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: scene-connect/actions/python-package-manager/install-dependencies@v5
         with:
           package-manager: poetry
@@ -170,7 +170,7 @@ jobs:
       checks: write # Necessary to write reports
       contents: read # Necessary to read repository
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: scene-connect/actions/python-package-manager/install-dependencies@v5
         with:
           package-manager: poetry
